@@ -5,16 +5,16 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "1.0"				                      #/
+__version__ = "1.0"				                      				  #/
 __copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
-__license__ = "GROUPE DEV IJPB"			                      #/
+__license__ = "GROUPE DEV IJPB"			                      		  #/
 #///////////////////////////////////////////////////////////////////////
 
 
 """
 VERSION PYTHON UTILISEE:  Python 2.7.3 (64-bit)
 
-PROGRAMME : MERGE DE N FICHIER .TXT (FICHIERS DE REVE POUR SNPEFF VERSION (snpEff_3_0))
+PROGRAMME : MERGE DE N FICHIER .TXT (FICHIERS DE REVE POUR SNPEFF VERSION (snpEff_dev))
 
 MODULE : TRAITEMENT DE N FICHIER
 
@@ -67,29 +67,99 @@ def help_mergeDreamFile_script():
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- TEST AVANT TRAITEMENT -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--DEBUT
 #___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
-def verif_arg(argv):
-	""" ****  FONCTION :  ****  \n\tverif_arg_nbr : VERIFICATION DES ARGUMENT """
-    	#print sys.argv
-    	if  (len(sys.argv) <= 1):	
-    		help_mergeDreamFile_script()
-    		sys.exit()
-   	elif (len(sys.argv) == 2) and (sys.argv[1] == "-h"):
-   	    	help_mergeDreamFile_script()
-    		#sys.exit()
-#		if sys.argv[1] == "-h":
-#			help_dreamFileMaker_script()
+def verif_arg1(argv):
+	"""FONCTION :  ****  \n\tverif_arg1 : VERIFICATION DU PREMIER ARGUMENT """
+	arg1_check= ""
+	listeFileExt= []
+	#print sys.argv
+	
+   	if (len(sys.argv) <= 1) or (sys.argv[1] == "-h"):
+			help_mergeDreamFile_script()
+			#print sys.argv
+			arg1_check ="OK"
+			return  arg1_check
+			sys.exit()
+	
+	elif str(os.path.isdir(sys.argv[1])) == "True":
+			#liste de fichier disponibles dans le repertoire
+			listFileRepIN = os.listdir(sys.argv[1])
+			for fileInrep in listFileRepIN:
+					if os.path.splitext(fileInrep)[1] == ".txt" :
+							listeFileExt.append(fileInrep)
+			if len(listeFileExt) >= 2 :
+					print " [OK] : REPERTOIRE D ENTREEE VALIDE.\n\tPATH :  " + sys.argv[1] + "\n\tListe des fichiers disponibles :" 
+					for fileInArg in listeFileExt:
+							if  (str(os.path.isfile(sys.argv[1]+fileInArg))) =="True" :
+									print fileInArg
+					arg1_check ="OK"			
+					return  arg1_check
+			else:
+				print "ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+	else:
+			print "ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+			
+			#listFileDispo = os.listdir(sys.argv[1])
+
+
+	#print sys.argv
+#   	if (len(sys.argv) <= 1) or (sys.argv[1] == "-h"):
+#			help_mergeDreamFile_script()
+#			#print sys.argv
+#			arg1_check ="OK"
+#			return  arg1_check
 #			sys.exit()
-#		elif ".vcf" in sys.argv[1]:
-#			#print 'Input VCF file is : ', sys.argv[1]
-#			return  sys.argv[1]
-#		elif ".vcf" not in sys.argv[1]:
-#			print 'Input file : '+ sys.argv[1]+' IS NOT A .vcf'
-#   	elif len(sys.argv) == 3:
-#		if sys.argv[1] == "-h" and sys.argv[2] == "log_report" :
-#			print log_report.__doc__
-#		elif sys.argv[1] == "-h" and sys.argv[2] == "verif_arg_nbr" :
-#			print verif_arg_nbr.__doc__
-	return argv
+#			
+#	elif str(os.path.isdir(sys.argv[1])) == "True":
+#			#liste de fichier disponibles dans le repertoire
+#			listFileDispo = os.listdir(sys.argv[1])
+#			if len(listFileDispo) == 0:
+#					print " [ERROR] : REPERTOIRE NON VALIDE !!! .\n\tPATH :  " + sys.argv[1] + "\n\tPAS DE fichiers disponibles."
+#					arg1_check ="ERROR"
+#					return  arg1_check
+#					
+#			elif len(listFileDispo) >= 2 :
+#					and ( list(set(listFileDispo) - set(listHiddenFIles)) != "") :
+#					print " [OK] : REPERTOIRE D ENTREEE VALIDE.\n\tPATH :  " + sys.argv[1] + "\n\tListe des fichiers disponibles :" 
+#					for fileInArg in listFileDispo:
+#							if  (str(os.path.isfile(sys.argv[1]+fileInArg))) =="True" :
+#									print fileInArg
+#					arg1_check ="OK"			
+#					return  arg1_check
+#					
+#			elif len(listFileDispo) >= 2 and (list(set(listFileDispo) - set(listHiddenFIles)) == "") :
+#					print " [ERROR] : REPERTOIRE NON VALIDE !!! .\n\tPATH :  " + sys.argv[1] + "\n\tLes fichiers disponibles NE SONT PAS compatibles avec le traitement.\n\tListe des fichiers dans le répertoire :" 
+#					
+#					for fileInArg in listFileDispo:
+#							if  (str(os.path.isfile(sys.argv[1]+fileInArg))) =="True" :
+#								print fileInArg
+#					arg1_check ="ERROR"			
+#					return  arg1_check
+#	else:
+#		print "ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers) SVP."
+#		arg1_check ="ERROR"			
+#		return  arg1_check
+#	elif (sys.argv[len(sys.argv) -1] == "-A") :
+#		print "FILE TREATEMENT : THE RESULT OF THE MATCH OF THE SET OF FILES ONLY,  WILL BE REPORTED."
+#    	print sys.argv
+
+
+#	if (sys.argv[1] != "-h") or (sys.argv[1] != ""):
+#    		verifPathIn = sys.argv[1]
+#    		#print verifPathIn
+#    		
+#    		os.path.isdir(verifPathIn)
+##    		if str(os.path.isdir(verifPathIn)) == "True" :
+##    				print "ok"
+##    				return  sys.argv
+##    		else:
+##    				"Repertoire d'entree n'existe pas "
+##    				return  sys.argv
+#    		
+#    	
+#	elif (sys.argv[len(sys.argv) -1] == "-A") :
+#		print "FILE TREATEMENT : THE RESULT OF THE MATCH OF THE SET OF FILES ONLY,  WILL BE REPORTED."
+#    	print sys.argv  
+#	return argv
 
 #___ TEST NOMBRE DE FICHIER DANS LE REPERTOIRE D ENTREE -------------------------------------------------
 def countFileNbr_repIn(REP_IN):
@@ -341,7 +411,7 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
 # ___ MAIN 
 def main(argv):
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
-	verif_arg(argv)
+	verif_arg1(argv)
 	
 #	#REPERTOIRE CONTENANT LES FICHIER D ENTREE
 #	REP_IN = sys.argv[1].strip("/")
