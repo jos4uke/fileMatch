@@ -74,7 +74,6 @@ def verif_arg1(argv):
 	listeFileExt= []
 	#print sys.argv
 	
-	
    	if (len(sys.argv) <= 1) or (sys.argv[1] == "-h"):
 			help_mergeDreamFile_script()
 			#print sys.argv
@@ -95,13 +94,29 @@ def verif_arg1(argv):
 				for fileInArg in listeFileExt:
 					if  (str(os.path.isfile(sys.argv[1]+fileInArg))) =="True" :
 						print fileInArg
-				arg1_check ="OK"			
+
+				#__VERIFICATION DES ENTREES ***
+				CHECK= fileIN_validity(sys.argv[1])
+	
+				#__SUPPRESSION .APPLE
+				if os.path.exists(sys.argv[1]+"/.AppleDouble") is True:
+					shutil.rmtree(sys.argv[1]+"/.AppleDouble")
+					
+				if CHECK == "OK":
+					print "\t[OK] : NOMBRE DE FICHIER VALIDE."
+					logging.info("[OK] : NOMBRE DE FICHIER VALIDE")
+					
+				logging.info("FIN ___ ETAPES DE VERIFICATION DES REPETOIRES")
+				print "FIN ___ ETAPES DE VERIFICATION FICHIER "
+				
+				arg1_check ="OK"
 				return  arg1_check
 			
 			elif len(listeFileExt) < 2 :
 				print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
 				arg1_check ="ERROR"			
 				return  arg1_check
+
 
 		elif str(os.path.isdir(sys.argv[1])) == "False":
 			print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
@@ -126,25 +141,25 @@ def fileArgList(argv):
 	if len(listFichierEnArg) >= 2:
 		for fileArg in listFichierEnArg:
 			if fileArg in (os.listdir(sys.argv[1])):
-				arg3_check_msg = " [OK] : LE FICHIER SPECIFE : "+fileArg+", APPARTIENT AU REPERTOIRE D ENTREE."
+				arg3_check_msg = " [OK] : LE FICHIER SPECIFE : " + fileArg + ", APPARTIENT AU REPERTOIRE D ENTREE."
 				print arg3_check_msg			
 				arg3_check ="OK"			
 			else:
-				arg3_check_msg = " [ERROR] : LE FICHIER SPECIFE : "+fileArg+", N APPARTIENT PAS AU REPERTOIRE D ENTREE."
+				arg3_check_msg = " [ERROR] : LE FICHIER SPECIFE : " + fileArg + ", N APPARTIENT PAS AU REPERTOIRE D ENTREE.\n"
 				print arg3_check_msg
 				arg3_check ="ERROR"
 		return arg3_check
 				
 	elif len(listFichierEnArg) == 1:
-		arg3_check_msg = " [ERROR] : IL FAUT SPECIFIER AU MOINS DEUX FICHIERS APPARTIENT PAS AU REPERTOIRE D ENTREE."
+		arg3_check_msg = " [ERROR] : IL FAUT SPECIFIER AU MOINS DEUX FICHIERS APPARTIENT PAS AU REPERTOIRE D ENTREE.\n"
 		print arg3_check_msg
 		arg3_check ="ERROR"
 		return arg3_check
 		
 	else:
-		arg3_check_msg = " [OK] : PAS DE LISTE DE FICHIERS EN ARG. TOUS LES FICHIERS DU REPERTOIRE D ENTREE SERONT TRAITES."
+		arg3_check_msg = " [OK] : PAS DE LISTE DE FICHIERS EN ARG. TOUS LES FICHIERS DU REPERTOIRE D ENTREE SERONT TRAITES.\n"
 		print arg3_check_msg
-		arg3_check ="OK"
+		arg3_check ="OK_withoutFilesList"
 		return arg3_check
 		
 #___ TEST DE VERIFICATION 2eme ARGUMENT  -------------------------------------------------		
@@ -172,8 +187,8 @@ def verif_arg2(argv):
 			arg2_check ="OK"
 			return  arg2_check
 			
-	else:
-		print "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.'"
+	elif (len(sys.argv) > 1 and len(sys.argv) < 3) and sys.argv[1] != "-h" and sys.argv[1] != "" :
+		print "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.\n"
 		arg2_check ="ERROR"			
 		return  arg2_check
 
@@ -183,40 +198,54 @@ def verif_lastArg(argv):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv)
 	last_arg = sys.argv[len(sys.argv) -1]
-	print "\n__VERIFICATION DU 4ème ARGUMENT : " + sys.argv[len(sys.argv)-1]
 	if (len(sys.argv) > 3) and (arg2_check == "OK") and (".txt" not in last_arg):
+		print "\n__VERIFICATION DU 4ème ARGUMENT : " + sys.argv[len(sys.argv)-1]
 		if last_arg == "-A" :
-			print " [WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.'"
-			fileArgList(argv)
+			print " [WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n"		
+			#Creation d'un repertoire pour la combinaison de tous les fichiers.
+			REP_OUT_ALL = sys.argv[2].rstrip("/") +"/AllFilesCombin/"
+			if str(os.path.isdir(REP_OUT_ALL)) == "False" : 
+				os.mkdir(REP_OUT_ALL)
+			#Sans liste de fichiers en argument
+			checkFileListe = fileArgList(argv)
+			if checkFileListe == "OK_withoutFilesList" :
+				#Faire le traiteemnt pour tous ls fichiers du repertoire
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL)
+				
+			return last_arg
 			
 		elif last_arg == "-C" :
-			print "[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.'"
-			fileArgList(argv)
+			print "[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			#Sans liste de fichiers en argument
+			checkFileListe = fileArgList(argv)
+			if checkFileListe == "OK_withoutFilesList" :
+				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
+				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))		
+			return last_arg
 			
 		elif (last_arg == "-AC"):
-			print "[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.'"
-			fileArgList(argv)
+			print "[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			#Creation d'un repertoire pour la combinaison de tous les fichiers.
+			REP_OUT_ALL = sys.argv[2].rstrip("/") +"/AllFilesCombin/"
+			if str(os.path.isdir(REP_OUT_ALL)) == "False" : 
+				os.mkdir(REP_OUT_ALL)
+			
+			#Sans liste de fichiers en argument
+			checkFileListe = fileArgList(argv)
+			if checkFileListe == "OK_withoutFilesList" :
+				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL)
+				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
+				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))	
+			return last_arg
+			
 			
 		else:
-			print "[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.'"
-			
-	else:
-		print "[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.'"
-			
-
-	
-#	last_arg = sys.argv[len(sys.argv) -1]
-#	if (arg2_check == "OK") and last_arg == "-A":
-#		print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
-#	else:
-#		print "\n[ALO] : " + last_arg +  str(arg2_check)
-	
-	#elif len(sys.argv) < 3 :
-		#print "\n[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.'"
-		#help_mergeDreamFile_script()
-		#sys.exit()
-		
-		
+			print "[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			return last_arg
+	elif (len(sys.argv) < 3 and len(sys.argv) > 1 ) and sys.argv[1] != "-h" and sys.argv[1] != "":
+		print "[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n'"
+		return last_arg
 #___ TEST NOMBRE DE FICHIER DANS LE REPERTOIRE D ENTREE -------------------------------------------------
 def countFileNbr_repIn(REP_IN):
 	filesIN = os.listdir(REP_IN)
@@ -236,16 +265,16 @@ def countLineNbr_repIn(FileIn):
 	
 #___ VERIFIER LA VALIDITE DES FICHIERS D ENTREE ----------------------------------------------------------
 def fileIN_validity(REP_IN):
-	print "DEBUT ___ ETAPES DE VERIFICATION FICHIER "
+	print "\nDEBUT ___ ETAPES DE VERIFICATION DES FICHIERS "
 	if countFileNbr_repIn(REP_IN) <= 1:
-		msgCountFileIN = "[ERROR] :YOU NEED TO PUT 2 FILES AT LEAST."
+		msgCountFileIN = "\t[ERROR] :IL FAUT AU MOINS DE FICHIER POUR LE TRAITEMENT."
 		print msgCountFileIN
 		logging.info(msgCountFileIN)
 		check_validity_repIN = "ERROR"	
-		print "FIN ___ ETAPES DE VERIFICATION FICHIER "
+		print "FIN ___ ETAPES DE VERIFICATION DES FICHIERS.\n"
 		return check_validity_repIN
 	else:
-		msgCountFileIN = "OK : YOU HAVE " + str(countFileNbr_repIn(REP_IN)) + " FILES TO MATCH"
+		msgCountFileIN = "\t[OK] : VOUS AVEZ " + str(countFileNbr_repIn(REP_IN)) + " FICHIERS A TRAITER."
 		print msgCountFileIN
 		logging.info(msgCountFileIN)
 		check_validity_repIN = "OK"
@@ -281,8 +310,8 @@ def count_combin_nbr(REP_IN):
 	msgFileINCombinCount = "--- COMPTAGE DES COMBINAISONS POSSIBLES  ---"
 	print msgFileINCombinCount
 	logging.info(msgFileINCombinCount)
-	logging.info(str(len(combinations)+1))
-	print str(len(combinations)+1)
+	logging.info(str(len(combinations)))
+	print str(len(combinations))
 	msgCountCombinF = "FIN ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
 	print msgCountCombinF 
 	logging.info(msgCountCombinF)
@@ -376,8 +405,9 @@ def data_combinFile_recup(REP_IN,REPORT_DIR_NAME):
 
 		#__CREATION REP OUT
 		nameCombinRep=combination.replace(".txt","")
-		pathCombin=REPORT_DIR_NAME+"/"+nameCombinRep
-		os.mkdir(pathCombin)
+		pathCombin=REPORT_DIR_NAME.rstrip("/")+"/"+nameCombinRep
+		if str(os.path.isdir(pathCombin)) == "False" :
+			os.mkdir(pathCombin)
 		
 		print "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin
 		logging.info( "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin)
@@ -467,47 +497,9 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
 # ___ MAIN 
 def main(argv):
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
-	verif_lastArg(argv)
-	
-	
-#	#REPERTOIRE CONTENANT LES FICHIER D ENTREE
-#	REP_IN = sys.argv[1].strip("/")
-#	print "REPERTOIRE D ENTREE SPECIFIEE : " + REP_IN
+	last_arg = verif_lastArg(argv)
 
-#	#REPERTOIRE CONTENANT LES FICHIER DE SORTIE	
-#	REPORT_DIR_NAME = sys.argv[2].strip("/")
-#	print "REPERTOIRE DE SORTIE SPECIFIEE : " + REPORT_DIR_NAME
-
-#	#__CREATION D UN FICHIER LOG ***
-#	if os.path.exists(REPORT_DIR_NAME) is True:
-#		shutil.rmtree(REPORT_DIR_NAME)
-#		#os.system('rm -r' REPORT_DIR_NAME)
-#		REPORT_DIR_NAME_Cmd = os.mkdir(REPORT_DIR_NAME)
-#		LOG_FILE_NAME = REPORT_DIR_NAME + "/LogFile.log"
-#		log_report(LOG_FILE_NAME)	
-#	else:
-#		REPORT_DIR_NAME_Cmd=os.mkdir(REPORT_DIR_NAME)
-#		LOG_FILE_NAME= REPORT_DIR_NAME+"/LogFile.log"		
-#		log_report(LOG_FILE_NAME)
-
-#	#Creation d'un repertoire pour la combinaison de tous les fichiers.
-#	REP_OUT = REPORT_DIR_NAME+"/AllFilesCombin/"
-#	os.mkdir(REP_OUT)
-#		
-#	#__VERIFICATION DES ENTREES ***
-#	logging.info("DEBUT ___ ETAPES DE VERIFICATION DES REPETOIRES")
-#	CHECK= fileIN_validity(REP_IN)
-#	
-#	#__SUPPRESSION .APPLE
-#	if os.path.exists(REP_IN+"/.AppleDouble") is True:
-#		shutil.rmtree(REP_IN+"/.AppleDouble")
-#	if CHECK == "OK":
-#		print "OK : NUMBER OF FILES IS VALID."
-#		logging.info("OK : NUMBER OF FILES IS VALID.")
-#		logging.info("FIN ___ ETAPES DE VERIFICATION DES REPETOIRES")
-#		print "FIN ___ ETAPES DE VERIFICATION FICHIER "
-#		#__RECUPERATION DES DONNES DE LA COMBINAIS
-#		#sdata_combinFile_recup(REP_IN,REPORT_DIR_NAME)
+#		#s
 
 #		#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
 #		#combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT)
