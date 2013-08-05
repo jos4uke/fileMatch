@@ -42,6 +42,8 @@ import logging.config
 
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--DEBUT
+#___VARIABLE GLOABALE 
+global LOG_FILE_NAME
 
 #___ FORMATAGE DU FICHIER LOG  --------------------------------------------------------------
 def log_report(LOG_FILE_NAME):
@@ -64,11 +66,10 @@ def help_mergeDreamFile_script():
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--FIN
 
 
-
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- TEST AVANT TRAITEMENT -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--DEBUT
 #___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
 #___ TEST DE VERIFICATION 1er  ARGUMENT  -------------------------------------------------
-def verif_arg1(argv):
+def verif_arg1(argv,LOG_FILE_NAME):
 	"""FONCTION :  ****  \n\tverif_arg1 : VERIFICATION DU PREMIER ARGUMENT """
 	global listeFileExt
 	listeFileExt= []
@@ -83,6 +84,7 @@ def verif_arg1(argv):
 	
 	elif (len(sys.argv) > 1) and (sys.argv[1] != "-h"):
 		print "\n__VERIFICATION DU 1er ARGUMENT : " + sys.argv[1]
+		logging.info("\n__VERIFICATION DU 1er ARGUMENT : " + sys.argv[1])
 		if str(os.path.isdir(sys.argv[1])) == "True":
 			#liste de fichier disponibles dans le repertoire
 			listFileRepIN = os.listdir(sys.argv[1])
@@ -91,9 +93,11 @@ def verif_arg1(argv):
 						listeFileExt.append(fileInrep)
 			if len(listeFileExt) >= 2 :
 				print " [OK] : REPERTOIRE D ENTREEE VALIDE.\n\tPATH :  " + sys.argv[1] + "\n\tListe des fichiers disponibles :" 
+				logging.info(" [OK] : REPERTOIRE D ENTREEE VALIDE.\n\tPATH :  " + sys.argv[1] + "\n\tListe des fichiers disponibles :")
 				for fileInArg in listeFileExt:
 					if  (str(os.path.isfile(sys.argv[1]+fileInArg))) =="True" :
 						print fileInArg
+						logging.info(fileInArg)
 
 				#__VERIFICATION DES ENTREES ***
 				CHECK= fileIN_validity(sys.argv[1])
@@ -113,17 +117,25 @@ def verif_arg1(argv):
 				return  arg1_check
 			
 			elif len(listeFileExt) < 2 :
-				print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+				msgArg1Error= "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+				print msgArg1Error
+				logging.error(msgArg1Error)
+				sys.stderr.write(msgArg1Error)
 				arg1_check ="ERROR"			
 				return  arg1_check
 
-
 		elif str(os.path.isdir(sys.argv[1])) == "False":
-			print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+			msgArg1Error2 = "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+			print msgArg1Error2
+			logging.error(msgArg1Error2)
+			sys.stderr.write(msgArg1Error2)
 			arg1_check ="ERROR"			
 			return  arg1_check
 	else:					
-		print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+		msgArg1Error3 = "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
+		print msgArg1Error3
+		logging.error(msgArg1Error3)
+		sys.stderr.write(msgArg1Error3)
 		arg1_check ="ERROR"			
 		return  arg1_check
 		
@@ -143,17 +155,22 @@ def fileArgList(argv):
 		for fileArg in listFichierEnArg:
 			if fileArg in (os.listdir(sys.argv[1])):
 				arg3_check_msg = " [OK] : LE FICHIER SPECIFE : " + fileArg + ", APPARTIENT AU REPERTOIRE D ENTREE."
-				print arg3_check_msg			
+				print arg3_check_msg
+				logging.info(arg3_check_msg)	
 				arg3_check ="OK"			
 			else:
 				arg3_check_msg = " [ERROR] : LE FICHIER SPECIFE : " + fileArg + ", N APPARTIENT PAS AU REPERTOIRE D ENTREE.\n"
 				print arg3_check_msg
+				logging.error(arg3_check_msg)
+				sys.stderr.write(arg3_check_msg)
 				arg3_check ="ERROR"
 		return arg3_check
 				
 	elif len(listFichierEnArg) == 1:
 		arg3_check_msg = " [ERROR] : IL FAUT SPECIFIER AU MOINS DEUX FICHIERS APPARTIENT PAS AU REPERTOIRE D ENTREE.\n"
 		print arg3_check_msg
+		logging.error(arg3_check_msg)
+		sys.stderr.write(arg3_check_msg)
 		arg3_check ="ERROR"
 		return arg3_check
 		
@@ -161,52 +178,69 @@ def fileArgList(argv):
 		arg3_check_msg = " [OK] : PAS DE LISTE DE FICHIERS EN ARG. TOUS LES FICHIERS DU REPERTOIRE D ENTREE SERONT TRAITES.\n"
 		print arg3_check_msg
 		arg3_check ="OK_withoutFilesList"
+		logging.info(arg3_check_msg)
 		return arg3_check
 		
 #___ TEST DE VERIFICATION 2eme ARGUMENT  -------------------------------------------------		
-def verif_arg2(argv):
+def verif_arg2(argv,LOG_FILE_NAME):
+
 	"""FONCTION :  ****  \n\tverif_arg2 : VERIFICATION DU 2eme ARGUMENT """
-	arg1_check = verif_arg1(argv)
+	arg1_check = verif_arg1(argv,LOG_FILE_NAME)
 	#print arg1_check
-	
 	if (len(sys.argv) > 2) and (arg1_check == "OK"):
 		print "\n__VERIFICATION DU 2ème ARGUMENT : " + sys.argv[2]
+		logging.info("\n__VERIFICATION DU 2ème ARGUMENT : " + sys.argv[2])
+		
 		#print str(os.path.exists(sys.argv[2]))
 		#print str(os.path.isdir(sys.argv[2]))
 		if (str(os.path.exists(sys.argv[2])) == "True") and (str(os.path.isdir(sys.argv[2])) == "True"):
 			#pathname = os.path.dirname(sys.argv[2])
 			print " [OK] : REPERTOIRE DE SORTIE EST VALIDE:\n\tPATH : " + os.path.abspath(sys.argv[2])
+			logging.info(" [OK] : REPERTOIRE DE SORTIE EST VALIDE:\n\tPATH : " + os.path.abspath(sys.argv[2]))
 			arg2_check ="OK"
+			cmd_mv_log =  "mv " + LOG_FILE_NAME + " ./" + sys.argv[2].rstrip("/")+"/"
+			os.system(cmd_mv_log)
 			return  arg2_check
 			
 		elif (str(os.path.exists(sys.argv[2])) == "False") and (str(os.path.isdir(sys.argv[2])) == "False"): 
 			print "[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.path.abspath(sys.argv[2])
+			loggging.warning("[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.path.abspath(sys.argv[2]))
 			os.mkdir(sys.argv[2])
-			LOG_FILE_NAME= str(sys.argv[2]).rstrip("/")+"/LogFile.log"
-			log_report(LOG_FILE_NAME)
+			cmd_mv_log =  "mv " + LOG_FILE_NAME + " ./" + sys.argv[2].rstrip("/")+"/"
+			os.system(cmd_mv_log)
+			
 			print "[OK] : LE REPERTOIRE DE SORTIE EST CREE."
+			logging.info("[OK] : LE REPERTOIRE DE SORTIE EST CREE.")
 			arg2_check ="OK"
 			return  arg2_check
 			
 	elif (len(sys.argv) > 1 and len(sys.argv) < 3) and sys.argv[1] != "-h" and sys.argv[1] != "" :
-		print "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.\n"
+		msgErrArg2 =  "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.\n"
+		print msgErrArg2
+		logging.error(msgErrArg2)
+		sys.stderr.write(msgErrArg2)
 		arg2_check ="ERROR"			
 		return  arg2_check
 
 	
 #___ TEST DE VERIFICATION 3eme /dernier ARGUMENT  -------------------------------------------------		
-def verif_lastArg(argv):
+def verif_lastArg(argv,LOG_FILE_NAME):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
-	arg2_check = verif_arg2(argv)
+	arg2_check = verif_arg2(argv,LOG_FILE_NAME)
 	last_arg = str(sys.argv[len(sys.argv) -1]).upper()
 	if (len(sys.argv) > 3) and (arg2_check == "OK") and (".txt" not in last_arg):
 		print "\n__VERIFICATION DU 4ème ARGUMENT : " + sys.argv[len(sys.argv)-1]
+		logging.info("\n__VERIFICATION DU 4ème ARGUMENT : " + sys.argv[len(sys.argv)-1])
 		if last_arg == "-A" :
-			print " [WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n"		
+			print " [WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			logging.warning(" [WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			#Creation d'un repertoire pour la combinaison de tous les fichiers.
 			REP_OUT_ALL = sys.argv[2].rstrip("/") +"/AllFilesCombin/"
+			
 			if str(os.path.isdir(REP_OUT_ALL)) == "False" : 
 				os.mkdir(REP_OUT_ALL)
+				#print "\tFICHIER LOG PATH : " + LOG_FILE_NAME
+				#log_report(LOG_FILE_NAME)
 				
 			#SANS liste de fichiers en argument
 			checkFileListe = fileArgList(argv)
@@ -220,6 +254,7 @@ def verif_lastArg(argv):
 			
 		elif last_arg == "-C" :
 			print "[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			logging.warning("[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			#Sans liste de fichiers en argument
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
@@ -232,6 +267,7 @@ def verif_lastArg(argv):
 			
 		elif (last_arg == "-AC"):
 			print "[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			logging.warning("[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			#Creation d'un repertoire pour la combinaison de tous les fichiers.
 			REP_OUT_ALL = sys.argv[2].rstrip("/") +"/AllFilesCombin/"
 			if str(os.path.isdir(REP_OUT_ALL)) == "False" : 
@@ -253,13 +289,17 @@ def verif_lastArg(argv):
 				data_combinFile_recupn_nbr_arg(sys.argv[1],sys.argv[2].rstrip("/"),listFichierEnArg)
 				
 			return last_arg
-			
-			
+				
 		else:
 			print "[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
+			logging.error("[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
+			sys.stderr.write("[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			return last_arg
+			
 	elif (len(sys.argv) < 3 and len(sys.argv) > 1 ) and sys.argv[1] != "-h" and sys.argv[1] != "":
-		print "[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n'"
+		print "[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n"
+		logging.error("[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n")
+		sys.stderr.write("[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n")
 		return last_arg
 #___ TEST NOMBRE DE FICHIER DANS LE REPERTOIRE D ENTREE -------------------------------------------------
 def countFileNbr_repIn(REP_IN):
@@ -650,11 +690,11 @@ def combin_all_file_ArgFileList(REP_IN,REPORT_DIR_NAME,REP_OUT,ARG_LIST_FILE):
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- MAIN -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
 # ___ MAIN 
 def main(argv):
+	#__LogFile
+	LOG_FILE_NAME= "./LogFile.log"
+	log_report(LOG_FILE_NAME)
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  ET TRAITEMENT CORRESPONDANT----
-	verif_lastArg(argv)
-
-#		#Creation rapport final
-#		#list_all_files(REPORT_DIR_NAME)
+	verif_lastArg(argv,LOG_FILE_NAME)
 	
 if __name__ == "__main__":
 	main(sys.argv[1:])
