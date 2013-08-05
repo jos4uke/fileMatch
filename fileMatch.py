@@ -129,6 +129,7 @@ def verif_arg1(argv):
 		
 #___ TEST : FICHIER EN ARG APPARTIENNET AU REPERTOIRE D ENTREE  -------------------------------------------------	
 def fileArgList(argv):
+	global listFichierEnArg
 	listFichierEnArg=[]
 	#print listeFileExt
 	#print sys.argv
@@ -197,7 +198,7 @@ def verif_arg2(argv):
 def verif_lastArg(argv):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv)
-	last_arg = sys.argv[len(sys.argv) -1]
+	last_arg = str(sys.argv[len(sys.argv) -1]).upper()
 	if (len(sys.argv) > 3) and (arg2_check == "OK") and (".txt" not in last_arg):
 		print "\n__VERIFICATION DU 4ème ARGUMENT : " + sys.argv[len(sys.argv)-1]
 		if last_arg == "-A" :
@@ -206,12 +207,15 @@ def verif_lastArg(argv):
 			REP_OUT_ALL = sys.argv[2].rstrip("/") +"/AllFilesCombin/"
 			if str(os.path.isdir(REP_OUT_ALL)) == "False" : 
 				os.mkdir(REP_OUT_ALL)
-			#Sans liste de fichiers en argument
+				
+			#SANS liste de fichiers en argument
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
-				#Faire le traiteemnt pour tous ls fichiers du repertoire
+				#Faire le traitement pour tous ls fichiers du repertoire
 				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL)
-				
+			#AVEC liste de fichier en argument
+			elif checkFileListe == "OK" : 
+				combin_all_file_ArgFileList(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,listFichierEnArg)
 			return last_arg
 			
 		elif last_arg == "-C" :
@@ -221,6 +225,9 @@ def verif_lastArg(argv):
 			if checkFileListe == "OK_withoutFilesList" :
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
 				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))		
+			#AVEC liste de fichier en argument
+			elif checkFileListe == "OK" : 
+				data_combinFile_recupn_nbr_arg(sys.argv[1],sys.argv[2].rstrip("/"),listFichierEnArg)
 			return last_arg
 			
 		elif (last_arg == "-AC"):
@@ -233,10 +240,18 @@ def verif_lastArg(argv):
 			#Sans liste de fichiers en argument
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
-				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
+				#Faire le traitement pour tous ls fichiers du repertoire
 				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL)
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
 				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))	
+				
+			#AVEC liste de fichier en argument
+			elif checkFileListe == "OK" :
+				#Faire le traitement pour tous ls fichiers du repertoire
+				combin_all_file_ArgFileList(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,listFichierEnArg)
+				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
+				data_combinFile_recupn_nbr_arg(sys.argv[1],sys.argv[2].rstrip("/"),listFichierEnArg)
+				
 			return last_arg
 			
 			
@@ -317,6 +332,40 @@ def count_combin_nbr(REP_IN):
 	logging.info(msgCountCombinF)
 	return combinations
 
+#--- COUNT COMBIN WITH ARGUMENT 
+def count_combin_nbr_arg(listFichierEnArg):
+	filesIN = listFichierEnArg
+	msgCountCombinD = "DEBUT ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
+	print msgCountCombinD 
+	logging.info(msgCountCombinD)
+
+	msgFileIN= "--- LISTE DES FICHIERS D ENTREE ---"
+	print msgFileIN
+	logging.info(msgFileIN)
+	logging.info(str(filesIN))
+	#print str(filesIN)
+	
+	#liste des combinaisons
+	combinations = []
+	for combination in itertools.combinations(filesIN, 2):
+		combinations.append("___".join(str(i) for i in combination))
+		
+	msgFileINCombinList = "--- LISTE DES COMBINAISONS POSSIBLES  ---"
+	print msgFileINCombinList
+	logging.info(msgFileINCombinList)
+	logging.info(str(combinations))
+	print str(combinations)
+	
+	msgFileINCombinCount = "--- COMPTAGE DES COMBINAISONS POSSIBLES  ---"
+	print msgFileINCombinCount
+	logging.info(msgFileINCombinCount)
+	logging.info(str(len(combinations)))
+	print str(len(combinations))
+	msgCountCombinF = "FIN ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
+	print msgCountCombinF 
+	logging.info(msgCountCombinF)
+	return combinations
+	
 #__ RECUPERATION DES LIGNES DE FICHIER DANS UNE LISTE
 def readlines_fileIN(FileIn):
 	listeLinesInFile=[]
@@ -419,6 +468,35 @@ def data_combinFile_recup(REP_IN,REPORT_DIR_NAME):
 		print "FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________"
 		logging.info("FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________")
 
+
+#___ RECUP DATA FROM COMBINATED FILES  WITH ARG ----------------------------------------------------------------------
+def data_combinFile_recupn_nbr_arg(REP_IN,REPORT_DIR_NAME,listFichierEnArg):
+	#__COMPTAGE DU NOMBRE DE COMBINAISON ***
+	listeFileCombinations =count_combin_nbr_arg(listFichierEnArg)
+	#print listeFileCombinations
+	#firstComb = listeFileCombinations[1]
+			
+	for combination in listeFileCombinations:
+		print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON ___________________________________________"
+		logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON ___________________________________________")
+
+		#__CREATION REP OUT
+		nameCombinRep=combination.replace(".txt","")
+		pathCombin=REPORT_DIR_NAME.rstrip("/")+"/"+nameCombinRep
+		if str(os.path.isdir(pathCombin)) == "False" :
+			os.mkdir(pathCombin)
+		
+		print "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin
+		logging.info( "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin)
+
+		#__TRAITEMENT DE COMBINAISON
+		#LISTE des deux fichies de la combinaison
+		fileCombinList = combination.replace(".txt","").split("___")
+		trait_one_combination_file(fileCombinList,REP_IN,REPORT_DIR_NAME)
+		print "FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________"
+		logging.info("FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________")
+		
+		
 #COMBI DE TOUS LES FICHIERS 
 def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
 	print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________"
@@ -490,28 +568,94 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
 		write_line_inFile_fromList(sorted(listUniq),foutUniq)
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
 	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
+
+
+
+#COMBI DE TOUS LES FICHIERS AVEC UNE LISTE DE FICHIER EN ARG 
+def combin_all_file_ArgFileList(REP_IN,REPORT_DIR_NAME,REP_OUT,ARG_LIST_FILE):
+	print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________"
+	logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________")
+
+	print "CREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
+	logging.info( "CREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
+
+	listFileInRep =[]
+
+	lineOfAllfiles =[]
+	lineOfAllfiles_trie =[]
+
+	listCommFile =[]
+	listCommFile_Trie=[]
+
+	listUniq=[]
+	listUniq_Sorted =[]
+
+	#Lister les fichiers du repertoire d entree
+	listFileInRep = ARG_LIST_FILE
+	print "FILES TO TREAT : " + str(listFileInRep)
+	logging.info("FILES TO TREAT : " + str(listFileInRep))
+	
+	#Recuperation des communs
+	FileIn_ref = REP_IN +"/"+listFileInRep[0]
+	listCommFile = readlines_fileIN(FileIn_ref)
+
+	for fileIn in listFileInRep:	
+		#ouverture du fichier
+		fin=open(REP_IN +"/"+fileIn,"r")
+		linesInfin = fin.readlines()
+		#Recuperation de toutes les lignes dans une liste
+		lineOfAllfiles = lineOfAllfiles + linesInfin
+		listCommFile =  list(set(listCommFile) & set(linesInfin))
+		fin.close()
+	
+	#print listCommFile
+	#Recuperation des uniques des lignes en commun des fichiers
+	listCommFile_Trie = sorted(set(listCommFile))
+	#print listCommFile_Trie
+	#print len(listCommFile_Trie)
+
+	#Ecriture du fichier des communs
+	foutcom = REP_OUT+"commAllFiles.txt"
+	print "PATH COMMUN FILE : " + foutcom
+	logging.info( "PATH COMMUN FILE : " + foutcom)
+	write_line_inFile_fromList(listCommFile,foutcom)
+	
+	#Lecture des fichiers du repertoire	
+	for i in range(len(listFileInRep)):
+		finU=open(REP_IN +"/"+listFileInRep[i],"r")
+		listlineU = finU.readlines()
+		finU.close()	
+
+		for fileIn in listFileInRep:	
+			#ouverture du fichier
+			fin=open(REP_IN +"/"+fileIn,"r")
+			linesInfin = fin.readlines()
+			listUniq =  list(set(listlineU) - set(linesInfin))
+
+		#print listFileInRep[i]
+		#print "liste " + listFileInRep[i] + " .uniq "
+		#print listUniq
+		fileName = listFileInRep[i].strip(".txt")
+		foutUniq = REP_OUT+fileName+"_Uniq.txt"
+		print "PATH UNIQ FILE : " + foutUniq
+		logging.info( "PATH UNIQ FILE : " + foutUniq)
+		write_line_inFile_fromList(sorted(listUniq),foutUniq)
+	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
+	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
+	
+	
 	
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- TRAITEMENT -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-- FIN
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- MAIN -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
 # ___ MAIN 
 def main(argv):
-	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
-	last_arg = verif_lastArg(argv)
-
-#		#s
-
-#		#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
-#		#combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT)
+	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  ET TRAITEMENT CORRESPONDANT----
+	verif_lastArg(argv)
 
 #		#Creation rapport final
 #		#list_all_files(REPORT_DIR_NAME)
-#	else:
-#		logging.info("[ERROR] : PLEASE SEE HELP FOR MORE INFORMATIONS")
-#		help_mergeDreamFile_script()
-#    	sys.exit()	
-#	
-		
+	
 if __name__ == "__main__":
 	main(sys.argv[1:])
 
