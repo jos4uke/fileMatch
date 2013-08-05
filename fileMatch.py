@@ -58,7 +58,7 @@ def help_mergeDreamFile_script():
 	print "**************"
 	print  "H E L P  :"
 	print "**************"
-	print  " usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A>"
+	print  " usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
 	print  " -h    : YOU NEED TWO FILES AT LEAST IN THE INPUT DIR "
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--FIN
@@ -106,7 +106,6 @@ def verif_arg1(argv):
 			print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
 			arg1_check ="ERROR"			
 			return  arg1_check
-
 	else:					
 		print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
 		arg1_check ="ERROR"			
@@ -127,8 +126,9 @@ def verif_arg2(argv):
 			print "[OK] : REPERTOIRE DE SORTIE EST VALIDE:\n\tPATH : " + os.path.abspath(sys.argv[2])
 			arg2_check ="OK"
 			return  arg2_check
-		elif (str(os.path.exists(sys.argv[2]) is False)) and (str(os.path.isdir(sys.argv[2])) is False): 
-			print "[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.getcwd()
+			
+		elif (str(os.path.exists(sys.argv[2])) == "False") and (str(os.path.isdir(sys.argv[2])) == "False"): 
+			print "[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.path.abspath(sys.argv[2])
 			os.mkdir(sys.argv[2])
 			LOG_FILE_NAME= str(sys.argv[2]).rstrip("/")+"/LogFile.log"
 			log_report(LOG_FILE_NAME)
@@ -136,20 +136,30 @@ def verif_arg2(argv):
 			arg2_check ="OK"
 			return  arg2_check
 			
-		else:
-			print "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.'"
-			arg2_check ="ERROR"			
-			return  arg2_check
+	else:
+		print "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.'"
+		arg2_check ="ERROR"			
+		return  arg2_check
 		
-#___ TEST DE VERIFICATION 3eme ARGUMENT  -------------------------------------------------		
-def verif_arg3(argv):
+#___ TEST DE VERIFICATION 3eme /dernier ARGUMENT  -------------------------------------------------		
+def verif_lastArg(argv):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv)
 	last_arg = sys.argv[len(sys.argv) -1]
-	if (arg2_check == "OK") and last_arg == "-A":
-		print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
-	else:
-		print "\n[ALO] : " + last_arg +  str(arg2_check)
+	
+	if (len(sys.argv) > 3) and (arg2_check == "OK") and (".txt" not in last_arg):
+		if last_arg == "-A" :
+			print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
+		elif last_arg == "-C" :
+			print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
+		elif (last_arg == "-AC"):
+			print "\n[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README POUR PLUS D'INFOS.'"
+			
+#	last_arg = sys.argv[len(sys.argv) -1]
+#	if (arg2_check == "OK") and last_arg == "-A":
+#		print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
+#	else:
+#		print "\n[ALO] : " + last_arg +  str(arg2_check)
 	
 	#elif len(sys.argv) < 3 :
 		#print "\n[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.'"
@@ -407,7 +417,7 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
 # ___ MAIN 
 def main(argv):
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
-	verif_arg2(argv)
+	verif_lastArg(argv)
 	
 #	#REPERTOIRE CONTENANT LES FICHIER D ENTREE
 #	REP_IN = sys.argv[1].strip("/")
