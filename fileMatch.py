@@ -70,6 +70,7 @@ def help_mergeDreamFile_script():
 #___ TEST DE VERIFICATION 1er  ARGUMENT  -------------------------------------------------
 def verif_arg1(argv):
 	"""FONCTION :  ****  \n\tverif_arg1 : VERIFICATION DU PREMIER ARGUMENT """
+	global listeFileExt
 	listeFileExt= []
 	#print sys.argv
 	
@@ -82,7 +83,7 @@ def verif_arg1(argv):
 			sys.exit()
 	
 	elif (len(sys.argv) > 1) and (sys.argv[1] != "-h"):
-		print "__VERIFICATION DU 1er ARGUMENT : " + sys.argv[1]
+		print "\n__VERIFICATION DU 1er ARGUMENT : " + sys.argv[1]
 		if str(os.path.isdir(sys.argv[1])) == "True":
 			#liste de fichier disponibles dans le repertoire
 			listFileRepIN = os.listdir(sys.argv[1])
@@ -110,7 +111,42 @@ def verif_arg1(argv):
 		print "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
 		arg1_check ="ERROR"			
 		return  arg1_check
-
+		
+#___ TEST : FICHIER EN ARG APPARTIENNET AU REPERTOIRE D ENTREE  -------------------------------------------------	
+def fileArgList(argv):
+	listFichierEnArg=[]
+	#print listeFileExt
+	#print sys.argv
+	for arg in sys.argv:
+		if (arg != sys.argv[0]) and (arg != sys.argv[1]) and (arg != sys.argv[2]) and (arg != sys.argv[len(sys.argv) -1]):
+			listFichierEnArg.append(arg)
+	#print listFichierEnArg
+	
+	print "\n__VERIFICATION DU 3ème ARGUMENT : Presence d'une liste de fichiers." 
+	if len(listFichierEnArg) >= 2:
+		for fileArg in listFichierEnArg:
+			if fileArg in (os.listdir(sys.argv[1])):
+				arg3_check_msg = " [OK] : LE FICHIER SPECIFE : "+fileArg+", APPARTIENT AU REPERTOIRE D ENTREE."
+				print arg3_check_msg			
+				arg3_check ="OK"			
+			else:
+				arg3_check_msg = " [ERROR] : LE FICHIER SPECIFE : "+fileArg+", N APPARTIENT PAS AU REPERTOIRE D ENTREE."
+				print arg3_check_msg
+				arg3_check ="ERROR"
+		return arg3_check
+				
+	elif len(listFichierEnArg) == 1:
+		arg3_check_msg = " [ERROR] : IL FAUT SPECIFIER AU MOINS DEUX FICHIERS APPARTIENT PAS AU REPERTOIRE D ENTREE."
+		print arg3_check_msg
+		arg3_check ="ERROR"
+		return arg3_check
+		
+	else:
+		arg3_check_msg = " [OK] : PAS DE LISTE DE FICHIERS EN ARG. TOUS LES FICHIERS DU REPERTOIRE D ENTREE SERONT TRAITES."
+		print arg3_check_msg
+		arg3_check ="OK"
+		return arg3_check
+		
 #___ TEST DE VERIFICATION 2eme ARGUMENT  -------------------------------------------------		
 def verif_arg2(argv):
 	"""FONCTION :  ****  \n\tverif_arg2 : VERIFICATION DU 2eme ARGUMENT """
@@ -118,12 +154,12 @@ def verif_arg2(argv):
 	#print arg1_check
 	
 	if (len(sys.argv) > 2) and (arg1_check == "OK"):
-		print "__VERIFICATION DU 2ème ARGUMENT : " + sys.argv[2]
+		print "\n__VERIFICATION DU 2ème ARGUMENT : " + sys.argv[2]
 		#print str(os.path.exists(sys.argv[2]))
 		#print str(os.path.isdir(sys.argv[2]))
 		if (str(os.path.exists(sys.argv[2])) == "True") and (str(os.path.isdir(sys.argv[2])) == "True"):
 			#pathname = os.path.dirname(sys.argv[2])
-			print "[OK] : REPERTOIRE DE SORTIE EST VALIDE:\n\tPATH : " + os.path.abspath(sys.argv[2])
+			print " [OK] : REPERTOIRE DE SORTIE EST VALIDE:\n\tPATH : " + os.path.abspath(sys.argv[2])
 			arg2_check ="OK"
 			return  arg2_check
 			
@@ -140,21 +176,35 @@ def verif_arg2(argv):
 		print "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.'"
 		arg2_check ="ERROR"			
 		return  arg2_check
-		
+
+	
 #___ TEST DE VERIFICATION 3eme /dernier ARGUMENT  -------------------------------------------------		
 def verif_lastArg(argv):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv)
 	last_arg = sys.argv[len(sys.argv) -1]
-	
+	print "\n__VERIFICATION DU 4ème ARGUMENT : " + sys.argv[len(sys.argv)-1]
 	if (len(sys.argv) > 3) and (arg2_check == "OK") and (".txt" not in last_arg):
 		if last_arg == "-A" :
-			print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
-		elif last_arg == "-C" :
-			print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
-		elif (last_arg == "-AC"):
-			print "\n[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README POUR PLUS D'INFOS.'"
+			print " [WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.'"
+			fileArgList(argv)
 			
+		elif last_arg == "-C" :
+			print "[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.'"
+			fileArgList(argv)
+			
+		elif (last_arg == "-AC"):
+			print "[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.'"
+			fileArgList(argv)
+			
+		else:
+			print "[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.'"
+			
+	else:
+		print "[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.'"
+			
+
+	
 #	last_arg = sys.argv[len(sys.argv) -1]
 #	if (arg2_check == "OK") and last_arg == "-A":
 #		print "\n[WARNING] : SEUL LE TRAITEMENT DE TYPE 1 SERA REALISE. VOIR LE README POUR PLUS D'INFOS.'"
@@ -418,6 +468,7 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
 def main(argv):
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  -------------------------------------------------
 	verif_lastArg(argv)
+	
 	
 #	#REPERTOIRE CONTENANT LES FICHIER D ENTREE
 #	REP_IN = sys.argv[1].strip("/")
