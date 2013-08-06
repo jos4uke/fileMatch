@@ -5,9 +5,9 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "1.0"				                      				  #/
+__version__ = "1.0"				                      			      #/
 __copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
-__license__ = "GROUPE DEV IJPB"			                      		  #/
+__license__ = "GROUPE DEV IJPB"			                      	      #/
 #///////////////////////////////////////////////////////////////////////
 
 
@@ -17,7 +17,6 @@ VERSION PYTHON UTILISEE:  Python 2.7.3 (64-bit)
 PROGRAMME : MERGE DE N FICHIER .TXT (FICHIERS DE REVE POUR SNPEFF VERSION (snpEff_dev))
 
 MODULE : TRAITEMENT DE N FICHIER
-
 """
 
 
@@ -61,7 +60,8 @@ def help_mergeDreamFile_script():
 	print  "H E L P  :"
 	print "**************"
 	print  " usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
-	print  " -h    : YOU NEED TWO FILES AT LEAST IN THE INPUT DIR "
+	print  " -h    : vous avez besoin de 2 fichiers .txt (au moins), pour faire le traitement."
+
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--FIN
 
@@ -79,6 +79,8 @@ def verif_arg1(argv,LOG_FILE_NAME):
 			help_mergeDreamFile_script()
 			#print sys.argv
 			arg1_check ="OK"
+			#EFFACER LE LOG_FILE_NAME
+			os.system("rm " + LOG_FILE_NAME)
 			return  arg1_check
 			sys.exit()
 	
@@ -118,7 +120,7 @@ def verif_arg1(argv,LOG_FILE_NAME):
 			
 			elif len(listeFileExt) < 2 :
 				msgArg1Error= "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
-				print msgArg1Error
+				#print msgArg1Error
 				logging.error(msgArg1Error)
 				sys.stderr.write(msgArg1Error)
 				arg1_check ="ERROR"			
@@ -126,14 +128,14 @@ def verif_arg1(argv,LOG_FILE_NAME):
 
 		elif str(os.path.isdir(sys.argv[1])) == "False":
 			msgArg1Error2 = "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
-			print msgArg1Error2
+			#print msgArg1Error2
 			logging.error(msgArg1Error2)
 			sys.stderr.write(msgArg1Error2)
 			arg1_check ="ERROR"			
 			return  arg1_check
 	else:					
 		msgArg1Error3 = "[ERROR] : ARGUMENT NON VALIDE. DONNEZ UN REPERTOIRE D ENTREE VALIDE (contenant au moins deux fichiers .txt ) SVP."
-		print msgArg1Error3
+		#print msgArg1Error3
 		logging.error(msgArg1Error3)
 		sys.stderr.write(msgArg1Error3)
 		arg1_check ="ERROR"			
@@ -152,15 +154,16 @@ def fileArgList(argv):
 	
 	print "\n__VERIFICATION DU 3ème ARGUMENT : Presence d'une liste de fichiers." 
 	if len(listFichierEnArg) >= 2:
+		print "VOUS AVEZ CHOISI DE TRAVAILLER AVEC UN SOUS ENSEMBLE DU FICHIER DU REPERTOIRE D ENTREE."
 		for fileArg in listFichierEnArg:
 			if fileArg in (os.listdir(sys.argv[1])):
-				arg3_check_msg = " [OK] : LE FICHIER SPECIFE : " + fileArg + ", APPARTIENT AU REPERTOIRE D ENTREE."
+				arg3_check_msg = " [OK] : LE FICHIER SPECIFE : " + fileArg + ", APPARTIENT AU REPERTOIRE D ENTREE.\n"
 				print arg3_check_msg
 				logging.info(arg3_check_msg)	
 				arg3_check ="OK"			
 			else:
-				arg3_check_msg = " [ERROR] : LE FICHIER SPECIFE : " + fileArg + ", N APPARTIENT PAS AU REPERTOIRE D ENTREE.\n"
-				print arg3_check_msg
+				arg3_check_msg = " [ERROR] : LE FICHIER SPECIFE : " + fileArg + ", N APPARTIENT PAS AU REPERTOIRE D ENTREE. VEUILLEZ RECOMMENCER.\n"
+				#print arg3_check_msg
 				logging.error(arg3_check_msg)
 				sys.stderr.write(arg3_check_msg)
 				arg3_check ="ERROR"
@@ -168,7 +171,7 @@ def fileArgList(argv):
 				
 	elif len(listFichierEnArg) == 1:
 		arg3_check_msg = " [ERROR] : IL FAUT SPECIFIER AU MOINS DEUX FICHIERS APPARTIENT PAS AU REPERTOIRE D ENTREE.\n"
-		print arg3_check_msg
+		#print arg3_check_msg
 		logging.error(arg3_check_msg)
 		sys.stderr.write(arg3_check_msg)
 		arg3_check ="ERROR"
@@ -183,7 +186,6 @@ def fileArgList(argv):
 		
 #___ TEST DE VERIFICATION 2eme ARGUMENT  -------------------------------------------------		
 def verif_arg2(argv,LOG_FILE_NAME):
-
 	"""FONCTION :  ****  \n\tverif_arg2 : VERIFICATION DU 2eme ARGUMENT """
 	arg1_check = verif_arg1(argv,LOG_FILE_NAME)
 	#print arg1_check
@@ -204,7 +206,7 @@ def verif_arg2(argv,LOG_FILE_NAME):
 			
 		elif (str(os.path.exists(sys.argv[2])) == "False") and (str(os.path.isdir(sys.argv[2])) == "False"): 
 			print "[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.path.abspath(sys.argv[2])
-			loggging.warning("[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.path.abspath(sys.argv[2]))
+			logging.warning("[WARNING] : LE REPERTOIRE DE SORTIE SPECIFIEE : " + sys.argv[2] + " N EXSTE PAS. IL SERA CREE SOUS LE CHEMIN INDIQUE.\n" + os.path.abspath(sys.argv[2]))
 			os.mkdir(sys.argv[2])
 			cmd_mv_log =  "mv " + LOG_FILE_NAME + " ./" + sys.argv[2].rstrip("/")+"/"
 			os.system(cmd_mv_log)
@@ -216,7 +218,7 @@ def verif_arg2(argv,LOG_FILE_NAME):
 			
 	elif (len(sys.argv) > 1 and len(sys.argv) < 3) and sys.argv[1] != "-h" and sys.argv[1] != "" :
 		msgErrArg2 =  "\n[ERROR] : LE REPERTOIRE DE SORTIE N'EST PAS SPECIFIE. VEUILLEZ RECOMMENCER.\n"
-		print msgErrArg2
+		#print msgErrArg2
 		logging.error(msgErrArg2)
 		sys.stderr.write(msgErrArg2)
 		arg2_check ="ERROR"			
@@ -291,16 +293,15 @@ def verif_lastArg(argv,LOG_FILE_NAME):
 			return last_arg
 				
 		else:
-			print "[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
 			logging.error("[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			sys.stderr.write("[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			return last_arg
 			
-	elif (len(sys.argv) < 3 and len(sys.argv) > 1 ) and sys.argv[1] != "-h" and sys.argv[1] != "":
-		print "[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n"
+	elif (len(sys.argv) < 4 and len(sys.argv) > 1 ) and sys.argv[1] != "-h" and sys.argv[1] != "":
 		logging.error("[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n")
 		sys.stderr.write("[ERROR] : VOUS AVEZ OMIS AU MOINS UN ARGUMENT. VEUILLEZ RECOMMENCER.\n")
 		return last_arg
+		
 #___ TEST NOMBRE DE FICHIER DANS LE REPERTOIRE D ENTREE -------------------------------------------------
 def countFileNbr_repIn(REP_IN):
 	filesIN = os.listdir(REP_IN)
