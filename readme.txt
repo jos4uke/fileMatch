@@ -1,4 +1,5 @@
-uthor__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)" #/
+##########################################################################
+#__author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)" #/
 #__version__ = "1.0"				         		#/
 #__copyright__ = "Copyright (c) 2013-2014 BHN"                         	#/
 #__license__ = "GROUPE DEV IJPB"			                #/
@@ -32,6 +33,7 @@ MODULE : TRAITEMENT DE N FICHIER .txt SORTIE DE SNP_EFF_DEV FORMATE PAR (dreamFi
 " -A : Traitement de l'ensemble de fichier. Un seul dossier sera créé en sortie : AllFilesCombin "
 " -C : Traitement des combinaisons de fichiers. Seuls les dossiers correspondant aux combinaisons de fichier 2 à 2 seront crées /  exp : file1___file2 "
 " -AC: C'est la combinaison des deux traitements précédents. Deux types de dossiers seront créés. Un dossier AllFilesCombin et les dossiers correspondant aux combinaisons. "
+" NB: chaque dossier créé contient un fichier contenant les communs entre les fichiers, et un fichier pour chaque fichier traité, correspondant aux uniques de celui-ci."
 
 " ** Recommandations: "
 "	- Copier les données à traiter dans un nouveau répertoire qui sera le répertoire d'entrée. "
