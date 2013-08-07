@@ -61,7 +61,7 @@ def help_mergeDreamFile_script():
 	print "**************"
 	print  " usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
 	print  " -h    : vous avez besoin de 2 fichiers .txt (au moins), pour faire le traitement."
-
+	print  " Pour plus d'infos veuillez consulter le readme."
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--FIN
 
