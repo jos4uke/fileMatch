@@ -60,9 +60,31 @@ def help_mergeDreamFile_script():
 	print "**************"
 	print  "H E L P  :"
 	print "**************"
-	print  " usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
+	print  " usage : fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
 	print  " -h    : vous avez besoin de 2 fichiers .txt (au moins), pour faire le traitement."
 	print  " Pour plus d'infos veuillez consulter le readme."
+	print  	" ** l'outil peut etre lancer de deux façons: "
+	print  "	1/ En specifiant une liste de fichiers."
+	print  "	2/ Sans specifier une liste de fichiers."
+
+	print  " ** La commande pour lancer l'outil en specifiant une liste de fichier : "
+	print  "	cheminExecutable <Repertoire_dentree> <Repertoire_de_sortie> <file1.txt> <file2.txt>  -<Type_de_traitment> "
+
+	print  " ** La commande pour lancer l'outil SANS SPECIFIE une liste de fichier : Tous les fichiers .txt du repertoire seront traites."
+	print  "	cheminExecutable <Repertoire_dentree> <Repertoire_de_sortie>  -<Type_de_traitment> "
+
+	print  " ** Trois types de traitements existent : "
+	print  " -A : Traitement de l'ensemble de fichier. Un seul dossier sera cree en sortie : AllFilesCombin "
+	print  " -C : Traitement des combinaisons de fichiers. Seuls les dossiers correspondant aux combinaisons de fichier 2 a 2 seront crees /  exp : file1___file2 "
+	print  " -AC: C'est la combinaison des deux traitements precedents. Deux types de dossiers seront crees. Un dossier AllFilesCombin et les dossiers correspondant aux combinaisons. "
+	print  " NB: chaque dossier cree contient un fichier contenant les communs entre les fichiers, et un fichier pour chaque fichier traite, correspondant aux uniques de celui-ci."
+
+	print  " ** Recommandations: "
+	print  "	- Copier les donnees a traiter dans un nouveau repertoire qui sera le repertoire d'entree. "
+	print  "	- Verifier la liste des fichiers contenu dans le repertoire d'entree (Des sorties .txt du pipeline mutdetect du type nomEchantillon_snpeff_snpsift_OneLineEff_DF.txt)"
+	print  "	- Creation d'un repertoire de sortie en dehors du repertoire d'entree."
+	print  "	- Verifier votre repertoire de sortie a chaque fois que vous lancer l'outil, pour ne pas ecraser des anciennes analyses."
+	print  "	- Les fichiers passes en argument doivent imperativement appartenir au repertoire d'entree."
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--FIN
 
