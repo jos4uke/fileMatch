@@ -44,7 +44,7 @@ import logging.config
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- CONFIGURATION -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#--DEBUT
 #___VARIABLE GLOABALE 
 global LOG_FILE_NAME
-
+global DATA_TABLE_FILE_NAME 
 #___ FORMATAGE DU FICHIER LOG  --------------------------------------------------------------
 def log_report(LOG_FILE_NAME):
 	#**** FORMATAGE DU LOG ***
@@ -249,7 +249,7 @@ def verif_arg2(argv,LOG_FILE_NAME):
 
 	
 #___ TEST DE VERIFICATION 3eme /dernier ARGUMENT  -------------------------------------------------		
-def verif_lastArg(argv,LOG_FILE_NAME):
+def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv,LOG_FILE_NAME)
 	last_arg = str(sys.argv[len(sys.argv) -1]).upper()
@@ -271,7 +271,7 @@ def verif_lastArg(argv,LOG_FILE_NAME):
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
 				#Faire le traitement pour tous ls fichiers du repertoire
-				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL)
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME)
 			#AVEC liste de fichier en argument
 			elif checkFileListe == "OK" : 
 				combin_all_file_ArgFileList(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,listFichierEnArg)
@@ -302,7 +302,7 @@ def verif_lastArg(argv,LOG_FILE_NAME):
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
 				#Faire le traitement pour tous ls fichiers du repertoire
-				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL)
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME)
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
 				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))	
 				
@@ -560,76 +560,169 @@ def data_combinFile_recupn_nbr_arg(REP_IN,REPORT_DIR_NAME,listFichierEnArg):
 		print "FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________"
 		logging.info("FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________")
 		
-		
+
+#RECUPERATION LISTE ID DANS CHAQUE FICHIER 
+def create_list_from_cln_all_file(fileName,numCln):
+	lenClnX=0
+	listClnX=[]
+	
+	fin= open(fileName,"r")
+	lines = fin.readlines()
+	
+	for line in lines:
+		 if line != lines[0] :		# SUPPRESSION DES ENTETES DES CLN
+		 	 lineIN = str(line.strip("\r\n"))
+			 lineIN = lineIN.split("\t")
+			 listClnX.append(lineIN[numCln])
+	listClnX = sorted(set(listClnX))
+	fin.close() 
+	print "\t NOMBRE D'IDS TOTAL SANS DOUBLONS : " + str(len(listClnX)) + " DANS LE FICHIER : " + fileName
+	logging.info("\t NOMBRE D'IDS TOTAL SANS DOUBLONS : " + str(len(listClnX)) + " DANS LE FICHIER : " + fileName)
+	return listClnX
+
+
+#CREATION DATA_TABLE POUR R
+def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME):
+	recupFileNameHeader =""
+	listID_sansdb =[]
+	
+	listFileInRep = os.listdir(REP_IN)
+	print "\tETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN "
+	logging.info("\tETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN ")
+	#Recuperation des ids de tous les fichies SANS DOUBLONS
+	for namefile in listFileInRep:
+		#Recuperation de la liste d'id trier- sans doublons d un fichiers / cln correspondant au id , num 3
+		listID_sansdb = listID_sansdb + (create_list_from_cln_all_file(REP_IN.strip("/")+"/"+namefile,4))
+	listID_sansdb = sorted(set(listID_sansdb))
+	print "\t NOMBRE D'IDS TOTAL SANS DOUBLONS POUR TOUS LES FICHIERS : " + str(len(listID_sansdb)) 
+	logging.info("\t NOMBRE D'IDS TOTAL SANS DOUBLONS POUR TOUS LES FICHIERS : " + str(len(listID_sansdb)) )
+	
+	
+	#Ouverture du fichier en lecture
+	datatable_file = open(REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"w")
+	#Recuperation l entete de cln avec les noms des fichiers
+	for namefile in listFileInRep:
+		recupFileNameHeader = recupFileNameHeader + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt") + "\t"
+	
+	#Ecriture dans le fichier entete clns
+	datatable_file.write("Ids/Fnames\t" + recupFileNameHeader+"\n")
+	print "Ids/Fnames\t" + recupFileNameHeader
+	
+	#initialiser a zero
+	remplirAzero="0\t"*len(listFileInRep)
+	
+	for idsT in listID_sansdb:
+		#print ids + "\n"	
+		datatable_file.write(idsT + "\t"+remplirAzero+"\n")
+	#Fermeture du fichier
+	datatable_file.close()
+	
+	
 #COMBI DE TOUS LES FICHIERS 
-def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT):
+def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME ):
+
 	print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________"
 	logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________")
 
-	print "CREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
-	logging.info( "CREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
-
-	listFileInRep =[]
-
-	lineOfAllfiles =[]
-	lineOfAllfiles_trie =[]
-
-	listCommFile =[]
-	listCommFile_Trie=[]
-
-	listUniq=[]
-	listUniq_Sorted =[]
-
+	#__CREATION DU FICHIER DATA_TABLE POUR R
 	#Lister les fichiers du repertoire d entree
 	listFileInRep = os.listdir(REP_IN)
-	print "FILES TO TREAT : " + str(listFileInRep)
+	print "\tFILES TO TREAT : " + str(listFileInRep)
 	logging.info("FILES TO TREAT : " + str(listFileInRep))
 	
-	#Recuperation des communs
-	FileIn_ref = REP_IN +"/"+listFileInRep[0]
-	listCommFile = readlines_fileIN(FileIn_ref)
-
-	for fileIn in listFileInRep:	
-		#ouverture du fichier
-		fin=open(REP_IN +"/"+fileIn,"r")
-		linesInfin = fin.readlines()
-		#Recuperation de toutes les lignes dans une liste
-		lineOfAllfiles = lineOfAllfiles + linesInfin
-		listCommFile =  list(set(listCommFile) & set(linesInfin))
-		fin.close()
+	print "\tNOMBRE DE FICHIER A TRAITER : " + str(len(listFileInRep))
+	logging.info("\tNOMBRE DE FICHIER A TRAITER : " + str(len(listFileInRep)))
 	
-	#print listCommFile
-	#Recuperation des uniques des lignes en commun des fichiers
-	listCommFile_Trie = sorted(set(listCommFile))
-	#print listCommFile_Trie
-	#print len(listCommFile_Trie)
-
-	#Ecriture du fichier des communs
-	foutcom = REP_OUT+"commAllFiles.txt"
-	print "PATH COMMUN FILE : " + foutcom
-	logging.info( "PATH COMMUN FILE : " + foutcom)
-	write_line_inFile_fromList(listCommFile,foutcom)
+	#__ETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN 
+	dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME)
 	
-	#Lecture des fichiers du repertoire	
-	for i in range(len(listFileInRep)):
-		finU=open(REP_IN +"/"+listFileInRep[i],"r")
-		listlineU = finU.readlines()
-		finU.close()	
 
-		for fileIn in listFileInRep:	
-			#ouverture du fichier
-			fin=open(REP_IN +"/"+fileIn,"r")
-			linesInfin = fin.readlines()
-			listUniq =  list(set(listlineU) - set(linesInfin))
+	#mettre un 1 la ou il y a l'id dans le fichier 
+	
+	#recuperation de la liste d'id du premier fichier 
+	listIdF1=create_list_from_cln_all_file(REP_IN.strip("/")+"/"+listFileInRep[0],4)
+	
+	#ouverture du fichier data frame
+	finDT= open(REPORT_DIR_NAME+"/"+DATA_TABLE_FILE_NAME,"r")
+	lines = finDT.readlines()
+	
+	finDF= open(REPORT_DIR_NAME+"/"+"data_Table_VennF.txt","w")
+	finDF.write(lines[0])
+	
+	for line in lines:
+		 if line != lines[0] :		# SUPPRESSION DES ENTETES DES CLN
+		 	 lineIN = str(line.strip("\r\n"))
+			 lineIN = lineIN.split("\t")
+			 if lineIN[0] in listIdF1:
+			 	finDF.write(lineIN[0] + "\t" + str(1) +"\n")
+			 	listIdF1 = list(set(listIdF1) - set(lineIN[0]))
+			 else:
+				 finDF.write(lineIN[0] + "\t" + str(0) + "\n")
 
-		#print listFileInRep[i]
-		#print "liste " + listFileInRep[i] + " .uniq "
-		#print listUniq
-		fileName = listFileInRep[i].strip(".txt")
-		foutUniq = REP_OUT+fileName+"_Uniq.txt"
-		print "PATH UNIQ FILE : " + foutUniq
-		logging.info( "PATH UNIQ FILE : " + foutUniq)
-		write_line_inFile_fromList(sorted(listUniq),foutUniq)
+	finDT.close() 
+	finDF.close()
+	
+	print "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
+	logging.info( "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
+
+#	listFileInRep =[]
+
+#	lineOfAllfiles =[]
+#	lineOfAllfiles_trie =[]
+
+#	listCommFile =[]
+#	listCommFile_Trie=[]
+
+#	listUniq=[]
+#	listUniq_Sorted =[]
+
+
+#	
+#	#Recuperation des communs
+#	FileIn_ref = REP_IN +"/"+listFileInRep[0]
+#	listCommFile = readlines_fileIN(FileIn_ref)
+
+#	for fileIn in listFileInRep:	
+#		#ouverture du fichier
+#		fin=open(REP_IN +"/"+fileIn,"r")
+#		linesInfin = fin.readlines()
+#		#Recuperation de toutes les lignes dans une liste
+#		lineOfAllfiles = lineOfAllfiles + linesInfin
+#		listCommFile =  list(set(listCommFile) & set(linesInfin))
+#		fin.close()
+#	
+#	#print listCommFile
+#	#Recuperation des uniques des lignes en commun des fichiers
+#	listCommFile_Trie = sorted(set(listCommFile))
+#	#print listCommFile_Trie
+#	#print len(listCommFile_Trie)
+
+#	#Ecriture du fichier des communs
+#	foutcom = REP_OUT+"commAllFiles.txt"
+#	print "PATH COMMUN FILE : " + foutcom
+#	logging.info( "PATH COMMUN FILE : " + foutcom)
+#	write_line_inFile_fromList(listCommFile,foutcom)
+#	
+#	#Lecture des fichiers du repertoire	
+#	for i in range(len(listFileInRep)):
+#		finU=open(REP_IN +"/"+listFileInRep[i],"r")
+#		listlineU = finU.readlines()
+#		finU.close()	
+
+#		for fileIn in listFileInRep:	
+#			#ouverture du fichier
+#			fin=open(REP_IN +"/"+fileIn,"r")
+#			linesInfin = fin.readlines()
+#			listUniq =  list(set(listlineU) - set(linesInfin))
+
+#		#print listFileInRep[i]
+#		#print "liste " + listFileInRep[i] + " .uniq "
+#		#print listUniq
+#		fileName = listFileInRep[i].strip(".txt")
+#		foutUniq = REP_OUT+fileName+"_Uniq.txt"
+#		print "PATH UNIQ FILE : " + foutUniq
+#		logging.info( "PATH UNIQ FILE : " + foutUniq)
+#		write_line_inFile_fromList(sorted(listUniq),foutUniq)
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
 	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
 
@@ -715,10 +808,11 @@ def combin_all_file_ArgFileList(REP_IN,REPORT_DIR_NAME,REP_OUT,ARG_LIST_FILE):
 # ___ MAIN 
 def main(argv):
 	#__LogFile
-	LOG_FILE_NAME= "./LogFile.log"
+	LOG_FILE_NAME = "./LogFile.log"
+	DATA_TABLE_FILE_NAME = "./data_Table_Venn.txt"
 	log_report(LOG_FILE_NAME)
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  ET TRAITEMENT CORRESPONDANT----
-	verif_lastArg(argv,LOG_FILE_NAME)
+	verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME)
 	
 if __name__ == "__main__":
 	main(sys.argv[1:])

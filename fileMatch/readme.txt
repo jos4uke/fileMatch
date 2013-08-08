@@ -19,7 +19,7 @@ MODULE : TRAITEMENT DE N FICHIER .txt SORTIE DE SNP_EFF_DEV FORMATE PAR (dreamFi
 " usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
 " -h    : vous avez besoin de 2 fichiers .txt (au moins), pour faire le traitement."
 
-" ** l'outil peut etre lancer de deux facons: "
+" ** l'outil peut etre lancer de deux façons: "
 "	1/ En specifiant une liste de fichiers."
 "	2/ Sans specifier une liste de fichiers."
 
