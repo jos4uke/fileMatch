@@ -682,7 +682,7 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	#nettoyage des fichiers intermédiaires 
 	for namefile in listFileInRep:
 		os.system("rm " + REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt")
-	
+	print "FIN DE LA LECTURE DU FICHIER CONTENANT LES ID SANS DOUBLONS."
 #COMBI DE TOUS LES FICHIERS 
 def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN):
 
@@ -702,10 +702,10 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn)
 
 	
-	print "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
+	print "CREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
 	logging.info( "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
 
-	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS "
+	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
 	
 	#ouvrir le fichier contenant les IDs communs :
 	commFile= open (REPORT_DIR_NAME+"/Id_comm.txt","w")
@@ -713,7 +713,10 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	#lecture de la matrice 
 	matriceIn = open(REPORT_DIR_NAME+"/"+DATA_MATRICE_VENN,"r")
 	lines = matriceIn.readlines()
-
+	commNbr=0
+	uniqNbr=0
+	comm2AtLeast=0
+	idTraitNbr=0
 	for line in lines:
 		if line != lines[0] :
 			line=line.strip("\r\n")
@@ -723,11 +726,26 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 			if listLineFileds.count(str(1)) == len(listFileInRep):
 				#print str(listLineFileds.count(str(1))) +"/" +str(len(listFileInRep))
 				#print listLineFileds[0]
-				commFile.write(listLineFileds[0]+"\n")		
+				commFile.write(listLineFileds[0]+"\n")
+				commNbr = commNbr + 1
+			elif listLineFileds.count(str(1)) == 1:
+				#print listLineFileds[0]
+				uniqNbr = uniqNbr + 1
+				
+			else:
+				comm2AtLeast = comm2AtLeast +1
+			idTraitNbr= idTraitNbr +1
+		
+	print "\tNOMBRE D'IDS TRAITES : " + str(idTraitNbr)			
+	print "\tNOMBRE D'IDS COMMUNS A TOUS LES FICHIERS : " + str(commNbr)	
+	print "\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS : " + str(comm2AtLeast)		
+	print "\tNOMBRE D'ID UNIQUE A UN SEUL FICHIER : " + str(uniqNbr)
+	
+	#Fermeture fichiers
 	matriceIn.close()
 	commFile.close()
 	
-	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS "
+	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
 	
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
 	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
