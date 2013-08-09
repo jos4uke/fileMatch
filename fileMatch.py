@@ -671,7 +671,7 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	fileAllID = open (REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"w")
 	fileAllID.write("Ids\t\n")
 	for idsT in listID_sansdb:
-		fileAllID.write(idsT + "\t\n")
+		fileAllID.write(idsT + "\n")
 	fileAllID.close()
 	
 	print "\t___DEBUT CREATION MATRICE POUR LE DIAGRAMME DE VENN "
@@ -705,8 +705,30 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	print "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
 	logging.info( "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
 
+	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS "
+	
+	#ouvrir le fichier contenant les IDs communs :
+	commFile= open (REPORT_DIR_NAME+"/Id_comm.txt","w")
 
+	#lecture de la matrice 
+	matriceIn = open(REPORT_DIR_NAME+"/"+DATA_MATRICE_VENN,"r")
+	lines = matriceIn.readlines()
 
+	for line in lines:
+		if line != lines[0] :
+			line=line.strip("\r\n")
+			listLineFileds = line.split("\t")
+			#print listLineFileds
+			#print listLineFileds.count(str(1))
+			if listLineFileds.count(str(1)) == len(listFileInRep):
+				#print str(listLineFileds.count(str(1))) +"/" +str(len(listFileInRep))
+				#print listLineFileds[0]
+				commFile.write(listLineFileds[0]+"\n")		
+	matriceIn.close()
+	commFile.close()
+	
+	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS "
+	
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
 	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
 	
