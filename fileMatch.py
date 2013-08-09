@@ -45,6 +45,7 @@ import logging.config
 #___VARIABLE GLOABALE 
 global LOG_FILE_NAME
 global DATA_TABLE_FILE_NAME 
+global DATA_MATRICE_VENN
 #___ FORMATAGE DU FICHIER LOG  --------------------------------------------------------------
 def log_report(LOG_FILE_NAME):
 	#**** FORMATAGE DU LOG ***
@@ -249,7 +250,7 @@ def verif_arg2(argv,LOG_FILE_NAME):
 
 	
 #___ TEST DE VERIFICATION 3eme /dernier ARGUMENT  -------------------------------------------------		
-def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME):
+def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME,DATA_MATRICE_VENN):
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv,LOG_FILE_NAME)
 	last_arg = str(sys.argv[len(sys.argv) -1]).upper()
@@ -272,11 +273,11 @@ def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME):
 			if checkFileListe == "OK_withoutFilesList" :
 				#Faire le traitement pour tous ls fichiers du repertoire
 				listFilesIn = os.listdir(REP_IN)
-				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn)
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
 			#AVEC liste de fichier en argument
 			elif checkFileListe == "OK" : 
 				listFilesIn = listFichierEnArg
-				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn)
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
 			return last_arg
 			
 		elif last_arg == "-C" :
@@ -305,14 +306,14 @@ def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME):
 			if checkFileListe == "OK_withoutFilesList" :
 				#Faire le traitement pour tous ls fichiers du repertoire
 				listFilesIn = os.listdir(REP_IN)
-				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn)
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
 				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))	
 				
 			#AVEC liste de fichier en argument
 			elif checkFileListe == "OK" :
 				listFilesIn = listFichierEnArg
-				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn)
+				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
 				data_combinFile_recupn_nbr_arg(sys.argv[1],sys.argv[2].rstrip("/"),listFichierEnArg)
 				
@@ -678,9 +679,12 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	os.system(cmd)
 	print "\t___FIN CREATION MATRICE POUR LE DIAGRAMME DE VENN "
 	
+	#nettoyage des fichiers intermédiaires 
+	for namefile in listFileInRep:
+		os.system("rm " + REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt")
 	
 #COMBI DE TOUS LES FICHIERS 
-def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn):
+def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN):
 
 	print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________"
 	logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________")
@@ -696,11 +700,11 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	
 	#__ETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN 
 	dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn)
-	
-	
+
 	
 	print "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
 	logging.info( "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
+
 
 
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
@@ -715,9 +719,10 @@ def main(argv):
 	#__LogFile
 	LOG_FILE_NAME = "./LogFile.log"
 	DATA_TABLE_FILE_NAME = "./data_Table_Venn.txt"
+	DATA_MATRICE_VENN ="./data_Table_For_Venn.txt"
 	log_report(LOG_FILE_NAME)
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  ET TRAITEMENT CORRESPONDANT----
-	verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME)
+	verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME,DATA_MATRICE_VENN)
 	
 	#Nettoyage des fichiers intermédiaires
 	#for namefile in listFileInRep:
