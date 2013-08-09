@@ -722,6 +722,10 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	#lecture de la matrice 
 	matriceIn = open(REPORT_DIR_NAME+"/"+DATA_MATRICE_VENN,"r")
 	lines = matriceIn.readlines()
+	
+	listUniqID=[]
+	listCommID=[]
+	
 	commNbr=0
 	uniqNbr=0
 	comm2AtLeast=0
@@ -737,11 +741,12 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 				#print listLineFileds[0]
 				commFile.write(listLineFileds[0]+"\n")
 				commNbr = commNbr + 1
+				listCommID.append(listLineFileds[0])
 			elif listLineFileds.count(str(1)) == 1:
 				#print listLineFileds[0]
 				uniqFileIds.write(listLineFileds[0]+"\n")
 				uniqNbr = uniqNbr + 1
-				
+				listUniqID.append(listLineFileds[0])
 			else:
 				comm2AtLeast = comm2AtLeast +1
 			idTraitNbr= idTraitNbr +1
@@ -759,9 +764,40 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	matriceIn.close()
 	commFile.close()
 	uniqFileIds.close()
-	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
-	logging.info("\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS ")
 	
+	print "\t__FIN LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
+	logging.info("\t__FIN LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS ")
+	
+	
+	#print listUniqID
+	print "DEBUT ___ GENERATION DES FICHIERS DES UNIQUES PAR FICHIERS "
+	#ouverture des fichiers et verification des uniques
+	nbrUniqIdInFile = []
+	for namefile in listFileInRep:
+		pathFileName = REP_IN.strip("/")+"/"+namefile
+		#print pathFileName
+		
+		#Fichier d entree
+		finList = open(pathFileName,"r")
+		linesFin = finList.readlines()
+		
+		#Fichier de sortie
+		pathFileOUt= REP_OUT.strip("/") + "/"+namefile.strip(".txt") + "_UNIQ.txt"
+		foutList = open(pathFileOUt,"w")
+		foutList.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
+		for linef in linesFin :
+			if linef != linesFin[0] :
+				linef = linef.strip("\r\n")
+				lineListField = linef.split("\t")
+				#print lineListField[4]
+				if lineListField[4] in listUniqID:
+					foutList.write(linef+"\n")
+					nbrUniqIdInFile.append(lineListField[4])
+		print "\tNOMBRE D ID UNIQUE DANS LE FICHIER : " + namefile.strip(".txt") + "_UNIQ.txt est " + str(len(sorted(set(nbrUniqIdInFile))))
+		finList.close()
+		foutList.close()
+		nbrUniqIdInFile = []
+	print "FIN ___ GENERATION DES FICHIERS DES UNIQUES PAR FICHIERS "
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
 	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
 	
