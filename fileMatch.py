@@ -583,13 +583,29 @@ def create_list_from_cln_all_file(fileName,numCln):
 	logging.info("\t NOMBRE D'IDS TOTAL SANS DOUBLONS : " + str(len(listClnX)) + " DANS LE FICHIER : " + fileName)
 	return listClnX
 
+#RECUPERATION LISTE ID DANS CHAQUE FICHIER 
+def create_id_list_cln_wO_msg(fileName,numCln):
+	lenClnX=0
+	listClnX=[]
+	
+	fin= open(fileName,"r")
+	lines = fin.readlines()
+	
+	for line in lines:
+		 if line != lines[0] :		# SUPPRESSION DES ENTETES DES CLN
+		 	 lineIN = str(line.strip("\r\n"))
+			 lineIN = lineIN.split("\t")
+			 listClnX.append(lineIN[numCln])
+	listClnX = sorted(set(listClnX))
+	fin.close() 
+	return listClnX
 
 #CREATION DATA_TABLE POUR R 
 def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn):
 	recupFileNameHeader =""
 	recupFilLN = ""
 	listID_sansdb =[]
-	
+	lineList =[]
 	listFileInRep = listFilesIn
 	print "\tETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN "
 	logging.info("\tETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN ")
@@ -603,12 +619,12 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	print "\t NOMBRE D'IDS TOTAL SANS DOUBLONS POUR TOUS LES FICHIERS : " + str(len(listID_sansdb)) 
 	logging.info("\t NOMBRE D'IDS TOTAL SANS DOUBLONS POUR TOUS LES FICHIERS : " + str(len(listID_sansdb)) )
 	
-	
+	#for namefile in listFileInRep:
 	#Ouverture du fichier en lecture
 	datatable_file = open(REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"w")
 
 	#print "Ids/Fnames\t" + recupFileNameHeader
-	datatable_file.write("Ids\t\n")	
+	#datatable_file.write("Ids\t\n")	
 
 	for idsT in listID_sansdb:
 		#print idsT + "\n"	
@@ -617,42 +633,51 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 
 	datatable_file.close()
 
+	print "LECTURE FICHIER CONTENANT LES ID SANS DOUBLONS ..."
+	#Ouverture du fichier en lecture
+	datatable_fileI = open(REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"r")
+	lines = datatable_fileI.readlines()
 	
-#	#Ouverture du fichier en lecture
-#	datatable_fileI = open(REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"r")
-#	lines = datatable_fileI.readlines()
-#	
-#	for namefile in listFileInRep:
-#		listI= create_list_from_cln_all_file(REP_IN.strip("/")+"/"+namefile,4)
-#		
-#		#Ouverture du fichier en ecriture
-#		finDF= open(REPORT_DIR_NAME+"/"+"data_Table_VennF"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt","w")
-#		finDF.write (namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+"\n")
+	
+	for line in lines:
+		lineList.append(line.strip("\t\r\n"))
+		#print lineList
+		
+	for namefile in listFileInRep:
+		listI= create_id_list_cln_wO_msg(REP_IN.strip("/")+"/"+namefile,4)
+	
+		print "\t___DEBUT DE GENERATION DU FICHIERS 0/1 POUR " + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")
+	
+		#Ouverture du fichier en ecriture
+		finDF= open(REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt","w")
+		finDF.write (namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+"\n")
+	
 
-#		for line in lines:
-#			if line != lines[0] :		# SUPPRESSION DES ENTETES DES CLN
-#		 		lineIN = str(line.strip("\r\n"))
-#				lineIN = lineIN.split("\t")	
-#		 
-#				if (lineIN[0] in listI):
-#					finDF.write(str(1) + "\n")
-#					listI = list (set(listI) - set(lineIN[0]))
-#				else:
-#		 			finDF.write(str(0) + "\n")
-#		 			listI = list (set(listI) - set(lineIN[0]))
-#		finDF.close()
-#		recupFileNameHeader = recupFileNameHeader + " " +REPORT_DIR_NAME+"/"+"data_Table_VennF"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt"
-#		#print recupFileNameHeader
+		for idall in lineList:
+			if idall in listI :
+				finDF.write(str(1) + "\n")
+			else:
+				finDF.write(str(0) + "\n")
 
-#		cmd= "paste " + REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME + " " + recupFileNameHeader +" >data_Table_For_Venn.txt"
-#		
-#		os.system(cmd)
-#	datatable_fileI.close()
-#	
-#	#Nettoyage des fichiers intermédiaires
-#	for namefile in listFileInRep:
-#		os.system ("rm " + REPORT_DIR_NAME+"/"+"data_Table_VennF"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt")
-#	os.system(DATA_TABLE_FILE_NAME)
+		finDF.close()
+		print "\t___FIN DE GENERATION DU FICHIERS 0/1 POUR " + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")
+		
+		recupFileNameHeader = recupFileNameHeader + " " +REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt"
+	datatable_fileI.close()
+	
+	#Creation matrice 
+	#ajout IDS dans le fichier contenant tous les ids :
+	fileAllID = open (REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"w")
+	fileAllID.write("Ids\t\n")
+	for idsT in listID_sansdb:
+		fileAllID.write(idsT + "\t\n")
+	fileAllID.close()
+	
+	print "\t___DEBUT CREATION MATRICE POUR LE DIAGRAMME DE VENN "
+	cmd= "paste " + REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME + " " + recupFileNameHeader +" > "+ REPORT_DIR_NAME + "/"+"data_Table_For_Venn.txt"	
+	os.system(cmd)
+	print "\t___FIN CREATION MATRICE POUR LE DIAGRAMME DE VENN "
+	
 	
 #COMBI DE TOUS LES FICHIERS 
 def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn):
@@ -669,34 +694,10 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	print "\tNOMBRE DE FICHIER A TRAITER : " + str(len(listFileInRep))
 	logging.info("\tNOMBRE DE FICHIER A TRAITER : " + str(len(listFileInRep)))
 	
-#	#__ETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN 
+	#__ETAPE DE CONSTRUCTION DU DATA TABLE POUR LA CONSTRUCTION DU VENN 
 	dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn)
-#	
-
-#	#mettre un 1 la ou il y a l'id dans le fichier 
-#	
-#	#recuperation de la liste d'id du premier fichier 
-#	listIdF1=create_list_from_cln_all_file(REP_IN.strip("/")+"/"+listFileInRep[0],4)
-#	
-#	#ouverture du fichier data frame
-#	finDT= open(REPORT_DIR_NAME+"/"+DATA_TABLE_FILE_NAME,"r")
-#	lines = finDT.readlines()
-#	
-#	finDF= open(REPORT_DIR_NAME+"/"+"data_Table_VennF.txt","w")
-#	finDF.write(lines[0])
-#	
-#	for line in lines:
-#		 if line != lines[0] :		# SUPPRESSION DES ENTETES DES CLN
-#		 	 lineIN = str(line.strip("\r\n"))
-#			 lineIN = lineIN.split("\t")
-#			 if lineIN[0] in listIdF1:
-#			 	finDF.write(lineIN[0] + "\t" + str(1) +"\n")
-#			 	listIdF1 = list(set(listIdF1) - set(lineIN[0]))
-#			 else:
-#				 finDF.write(lineIN[0] + "\t" + str(0) + "\n")
-
-#	finDT.close() 
-#	finDF.close()
+	
+	
 	
 	print "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS " + REP_OUT
 	logging.info( "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
@@ -718,6 +719,9 @@ def main(argv):
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  ET TRAITEMENT CORRESPONDANT----
 	verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME)
 	
+	#Nettoyage des fichiers intermédiaires
+	#for namefile in listFileInRep:
+	#	os.system ("rm " + REPORT_DIR_NAME + "/dataTableVenn_*")
 if __name__ == "__main__":
 	main(sys.argv[1:])
 
