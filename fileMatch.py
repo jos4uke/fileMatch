@@ -635,6 +635,7 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	datatable_file.close()
 
 	print "LECTURE FICHIER CONTENANT LES ID SANS DOUBLONS ..."
+	logging.info("LECTURE FICHIER CONTENANT LES ID SANS DOUBLONS ...")
 	#Ouverture du fichier en lecture
 	datatable_fileI = open(REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"r")
 	lines = datatable_fileI.readlines()
@@ -648,7 +649,7 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 		listI= create_id_list_cln_wO_msg(REP_IN.strip("/")+"/"+namefile,4)
 	
 		print "\t___DEBUT DE GENERATION DU FICHIERS 0/1 POUR " + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")
-	
+		logging.info("\t___DEBUT DE GENERATION DU FICHIERS 0/1 POUR " + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt"))
 		#Ouverture du fichier en ecriture
 		finDF= open(REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt","w")
 		finDF.write (namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+"\n")
@@ -662,7 +663,7 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 
 		finDF.close()
 		print "\t___FIN DE GENERATION DU FICHIERS 0/1 POUR " + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")
-		
+		logging.info("\t___FIN DE GENERATION DU FICHIERS 0/1 POUR " + namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt"))
 		recupFileNameHeader = recupFileNameHeader + " " +REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt"
 	datatable_fileI.close()
 	
@@ -675,14 +676,19 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	fileAllID.close()
 	
 	print "\t___DEBUT CREATION MATRICE POUR LE DIAGRAMME DE VENN "
+	logging.info("\t___DEBUT CREATION MATRICE POUR LE DIAGRAMME DE VENN ")
 	cmd= "paste " + REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME + " " + recupFileNameHeader +" > "+ REPORT_DIR_NAME + "/"+"data_Table_For_Venn.txt"	
 	os.system(cmd)
 	print "\t___FIN CREATION MATRICE POUR LE DIAGRAMME DE VENN "
+	logging.info("\t___FIN CREATION MATRICE POUR LE DIAGRAMME DE VENN ")
 	
 	#nettoyage des fichiers intermédiaires 
 	for namefile in listFileInRep:
 		os.system("rm " + REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt")
 	print "FIN DE LA LECTURE DU FICHIER CONTENANT LES ID SANS DOUBLONS."
+	logging.info("FIN DE LA LECTURE DU FICHIER CONTENANT LES ID SANS DOUBLONS.")
+	
+	
 #COMBI DE TOUS LES FICHIERS 
 def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN):
 
@@ -706,10 +712,13 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	logging.info( "\tCREATION DU REPERTOIRES CORRESPONDANT A LA COMBINAISON DE TOUT LES FICHIERS" + REP_OUT)
 
 	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
-	
+	logging.info("\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS ")
 	#ouvrir le fichier contenant les IDs communs :
 	commFile= open (REPORT_DIR_NAME+"/Id_comm.txt","w")
-
+	commFile.write("IDS_COMMUNS\n")
+	#ouvrir le fichier contenant les IDs communs :
+	uniqFileIds= open (REPORT_DIR_NAME+"/Id_uniq.txt","w")
+	uniqFileIds.write("IDS_UNIQS\n")
 	#lecture de la matrice 
 	matriceIn = open(REPORT_DIR_NAME+"/"+DATA_MATRICE_VENN,"r")
 	lines = matriceIn.readlines()
@@ -730,22 +739,28 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 				commNbr = commNbr + 1
 			elif listLineFileds.count(str(1)) == 1:
 				#print listLineFileds[0]
+				uniqFileIds.write(listLineFileds[0]+"\n")
 				uniqNbr = uniqNbr + 1
 				
 			else:
 				comm2AtLeast = comm2AtLeast +1
 			idTraitNbr= idTraitNbr +1
 		
-	print "\tNOMBRE D'IDS TRAITES : " + str(idTraitNbr)			
-	print "\tNOMBRE D'IDS COMMUNS A TOUS LES FICHIERS : " + str(commNbr)	
-	print "\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS : " + str(comm2AtLeast)		
+	print "\tNOMBRE D'IDS TRAITES : " + str(idTraitNbr)	
+	logging.info("\tNOMBRE D'IDS TRAITES : " + str(idTraitNbr))		
+	print "\tNOMBRE D'IDS COMMUNS A TOUS LES FICHIERS : " + str(commNbr)
+	logging.info("\tNOMBRE D'IDS COMMUNS A TOUS LES FICHIERS : " + str(commNbr))	
+	print "\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS : " + str(comm2AtLeast)
+	logging.info("\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS : " + str(comm2AtLeast))
 	print "\tNOMBRE D'ID UNIQUE A UN SEUL FICHIER : " + str(uniqNbr)
+	logging.info("\tNOMBRE D'ID UNIQUE A UN SEUL FICHIER : " + str(uniqNbr))
 	
 	#Fermeture fichiers
 	matriceIn.close()
 	commFile.close()
-	
+	uniqFileIds.close()
 	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
+	logging.info("\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS ")
 	
 	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
 	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
