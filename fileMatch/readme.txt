@@ -1,6 +1,6 @@
-##########################################################################
 #__author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)" #/
-#__version__ = "1.0"				         		#/
+#__version__ = "1.1"							#/
+#__date__ = "AOUT 2013"							#/
 #__copyright__ = "Copyright (c) 2013-2014 BHN"                         	#/
 #__license__ = "GROUPE DEV IJPB"			                #/
 #/////////////////////////////////////////////////////////////////////////
@@ -16,10 +16,9 @@ MODULE : TRAITEMENT DE N FICHIER .txt SORTIE DE SNP_EFF_DEV FORMATE PAR (dreamFi
 "**************"
 " AIDE :"
 "**************"
-" usage : ./fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
+" usage : fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-Cn/-AC/-ACn>"
 " -h    : vous avez besoin de 2 fichiers .txt (au moins), pour faire le traitement."
-
-" ** l'outil peut etre lancer de deux façons: "
+	" ** l'outil peut etre lancer de deux façons: "
 "	1/ En specifiant une liste de fichiers."
 "	2/ Sans specifier une liste de fichiers."
 
@@ -31,8 +30,9 @@ MODULE : TRAITEMENT DE N FICHIER .txt SORTIE DE SNP_EFF_DEV FORMATE PAR (dreamFi
 
 " ** Trois types de traitements existent : "
 " -A : Traitement de l'ensemble de fichier. Un seul dossier sera cree en sortie : AllFilesCombin "
-" -C : Traitement des combinaisons de fichiers. Seuls les dossiers correspondant aux combinaisons de fichier 2 a 2 seront crees /  exp : file1___file2 "
+" -C : Traitement des combinaisons de fichiers. Seuls les dossiers correspondant aux combinaisons seront crees. "
 " -AC: C'est la combinaison des deux traitements precedents. Deux types de dossiers seront crees. Un dossier AllFilesCombin et les dossiers correspondant aux combinaisons. "
+" n: C'est le type de combinaison souhaitee : 2 pour 2a2, 3 pour 3a3, 4 pour 4a4, 5 pour 5a5."
 " NB: chaque dossier cree contient un fichier contenant les communs entre les fichiers, et un fichier pour chaque fichier traite, correspondant aux uniques de celui-ci."
 
 " ** Recommandations: "
@@ -47,4 +47,3 @@ MODULE : TRAITEMENT DE N FICHIER .txt SORTIE DE SNP_EFF_DEV FORMATE PAR (dreamFi
 "Le developpeur de logiciel ne prend pas la responsabilite de l'integrite de vos donnees:"
 "-  Si votre serveur Linux en production a d'une façon ou d'une autre perdu toute raison et a du meme coup detruit vos precieuses donnees (aucun de ces aleas n'a ete enregistre, naturellement, mais nous evoquons une hypothetique eventualite) "
 "- Si mauvaises manipulation entrainent la perte de vos donnees."
-
