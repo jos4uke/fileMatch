@@ -5,10 +5,10 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "1.1"		                      			              #/
-__date__= "20130808"		                      			          #/
+__version__ = "1.1"		                      	   	      #/
+__date__= "20130808"		                      		      #/
 __copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
-__license__ = "GROUPE DEV IJPB"			                      	      #/
+__license__ = "GROUPE DEV IJPB"			                      #/
 #///////////////////////////////////////////////////////////////////////
 
 
@@ -61,7 +61,7 @@ def help_mergeDreamFile_script():
 	print "**************"
 	print  "H E L P  :"
 	print "**************"
-	print  " usage : fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-AC>"
+	print  " usage : fileMatch <DIR_IN> <DIR_OUT> <F1> <F2> ... <Fn> <-A/-C/-Cn/-AC/-ACn>"
 	print  " -h    : vous avez besoin de 2 fichiers .txt (au moins), pour faire le traitement."
 	print  " Pour plus d'infos veuillez consulter le readme."
 	print  	" ** l'outil peut etre lancer de deux façons: "
@@ -78,6 +78,7 @@ def help_mergeDreamFile_script():
 	print  " -A : Traitement de l'ensemble de fichier. Un seul dossier sera cree en sortie : AllFilesCombin "
 	print  " -C : Traitement des combinaisons de fichiers. Seuls les dossiers correspondant aux combinaisons de fichier 2 a 2 seront crees /  exp : file1___file2 "
 	print  " -AC: C'est la combinaison des deux traitements precedents. Deux types de dossiers seront crees. Un dossier AllFilesCombin et les dossiers correspondant aux combinaisons. "
+	print  " n: C'est le type de combinaison souhaitee : 2 pour 2a2, 3 pour 3a3, 4 pour 4a4, 5 pour 5a5."
 	print  " NB: chaque dossier cree contient un fichier contenant les communs entre les fichiers, et un fichier pour chaque fichier traite, correspondant aux uniques de celui-ci."
 
 	print  " ** Recommandations: "
@@ -131,7 +132,7 @@ def verif_arg1(argv,LOG_FILE_NAME):
 				#__SUPPRESSION .APPLE
 				if os.path.exists(sys.argv[1]+"/.AppleDouble") is True:
 					shutil.rmtree(sys.argv[1]+"/.AppleDouble")
-					
+					os.system("rm " + ".DS_Store")
 				if CHECK == "OK":
 					print "\t[OK] : NOMBRE DE FICHIER VALIDE."
 					logging.info("[OK] : NOMBRE DE FICHIER VALIDE")
@@ -251,6 +252,7 @@ def verif_arg2(argv,LOG_FILE_NAME):
 	
 #___ TEST DE VERIFICATION 3eme /dernier ARGUMENT  -------------------------------------------------		
 def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME,DATA_MATRICE_VENN):
+	nbrComb=2
 	"""FONCTION :  ****  \n\tverif_arg3 : VERIFICATION DU 3eme ARGUMENT """
 	arg2_check = verif_arg2(argv,LOG_FILE_NAME)
 	last_arg = str(sys.argv[len(sys.argv) -1]).upper()
@@ -272,53 +274,104 @@ def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME,DATA_MATRICE_VENN):
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
 				#Faire le traitement pour tous ls fichiers du repertoire
-				listFilesIn = os.listdir(REP_IN)
+				listFilesIn =listeFileExt
+				print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ____________________________"
+				logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS _____________________")
 				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
+				print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ____________________________"
+				logging.info("FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS _____________________")
+
 			#AVEC liste de fichier en argument
 			elif checkFileListe == "OK" : 
 				listFilesIn = listFichierEnArg
 				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
 			return last_arg
-			
-		elif last_arg == "-C" :
+
+		elif "-C" in last_arg :
 			print "[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
 			logging.warning("[WARNING] : SEUL LE TRAITEMENT DE TYPE 2 SERA REALISE. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			#Sans liste de fichiers en argument
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
-				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))		
+				listFilesIn =listeFileExt
+				recupTrai=last_arg
+				if last_arg ==  "-C":
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,2,DATA_MATRICE_VENN)
+
+				else:
+					nbrComb=int(last_arg.replace("-C",""))
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN)
+						
+
 			#AVEC liste de fichier en argument
 			elif checkFileListe == "OK" : 
-				data_combinFile_recupn_nbr_arg(sys.argv[1],sys.argv[2].rstrip("/"),listFichierEnArg)
+				listFilesIn = listFichierEnArg
+				recupTrai=last_arg
+				if last_arg ==  "-C":
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,2,DATA_MATRICE_VENN)
+
+				else:
+					nbrComb=int(last_arg.replace("-C",""))
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN)
 			return last_arg
-			
-		elif (last_arg == "-AC"):
+
+
+
+		elif "-AC" in last_arg :
 			print "[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.\n"
 			logging.warning("[WARNING] : LES TRAITEMENTS DE TYPE 1+2 SERONT REALISES. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
+
 			#Creation d'un repertoire pour la combinaison de tous les fichiers.
 			REP_OUT_ALL = sys.argv[2].rstrip("/") +"/AllFilesCombin/"
+			
 			if str(os.path.isdir(REP_OUT_ALL)) == "False" : 
 				os.mkdir(REP_OUT_ALL)
-			
-			#Sans liste de fichiers en argument
+				#print "\tFICHIER LOG PATH : " + LOG_FILE_NAME
+				#log_report(LOG_FILE_NAME)
+				
+			#SANS liste de fichiers en argument
 			checkFileListe = fileArgList(argv)
 			if checkFileListe == "OK_withoutFilesList" :
 				#Faire le traitement pour tous ls fichiers du repertoire
-				listFilesIn = os.listdir(REP_IN)
+				listFilesIn =listeFileExt
+				print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ____________________________"
+				logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS _____________________")
 				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
-				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
-				data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"))	
-				
+				print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ____________________________"
+				logging.info("FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS _____________________")
+
 			#AVEC liste de fichier en argument
-			elif checkFileListe == "OK" :
+			elif checkFileListe == "OK" : 
 				listFilesIn = listFichierEnArg
 				combin_all_file(sys.argv[1],sys.argv[2].rstrip("/"),REP_OUT_ALL,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN)
+
+			#Sans liste de fichiers en argument
+			checkFileListe = fileArgList(argv)
+			if checkFileListe == "OK_withoutFilesList" :
 				#FAIRE LA COMBINAISON DE TOUS LES FICHIERS
-				data_combinFile_recupn_nbr_arg(sys.argv[1],sys.argv[2].rstrip("/"),listFichierEnArg)
-				
+				listFilesIn =listeFileExt
+				if last_arg ==  "-AC":
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN)
+
+				else:
+					nbrComb=int(last_arg.replace("-AC",""))
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN)
+						
+
+			#AVEC liste de fichier en argument
+			elif checkFileListe == "OK" : 
+				listFilesIn = listFichierEnArg
+				recupTrai=last_arg
+				if last_arg ==  "-AC":
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN)
+
+				else:
+					nbrComb=int(last_arg.replace("-AC",""))
+					data_combinFile_recup(sys.argv[1],sys.argv[2].rstrip("/"),DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN)
 			return last_arg
-				
+
+							
 		else:
 			logging.error("[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
 			sys.stderr.write("[ERROR] : SPECIFIEZ LE TYPE DE TRAITEMENT SVP. VOIR LE README/HELP POUR PLUS D'INFOS.\n")
@@ -331,9 +384,14 @@ def verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME,DATA_MATRICE_VENN):
 		
 #___ TEST NOMBRE DE FICHIER DANS LE REPERTOIRE D ENTREE -------------------------------------------------
 def countFileNbr_repIn(REP_IN):
+	nbrFilelist=[]
 	filesIN = os.listdir(REP_IN)
+	for filename in filesIN:
+		filename= filename.split(".")
+		if filename[1] == "txt":
+			nbrFilelist.append(filename)
 	#print filesIN	
-	nbr_filesIN = len(filesIN)
+	nbr_filesIN = len(nbrFilelist)
 	#print nbr_filesIN	
 	return nbr_filesIN
 
@@ -347,7 +405,8 @@ def countLineNbr_repIn(FileIn):
 	return nbrLine
 	
 #___ VERIFIER LA VALIDITE DES FICHIERS D ENTREE ----------------------------------------------------------
-def fileIN_validity(REP_IN):
+def fileIN_validity(listeFileExt):
+	REP_IN=listeFileExt
 	print "\nDEBUT ___ ETAPES DE VERIFICATION DES FICHIERS "
 	if countFileNbr_repIn(REP_IN) <= 1:
 		msgCountFileIN = "\t[ERROR] :IL FAUT AU MOINS DE FICHIER POUR LE TRAITEMENT."
@@ -367,8 +426,8 @@ def fileIN_validity(REP_IN):
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- TEST APRES TRAITEMENT -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-- DEBUT
 #___ TEST NOMBRE DE COMBINAISON POSSIBLES  ------------------------------------------------------------------------
-def count_combin_nbr(REP_IN):
-	filesIN = os.listdir(REP_IN)
+def count_combin_nbr(listeFileExt,nbrComb):
+	filesIN = listeFileExt
 	msgCountCombinD = "DEBUT ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
 	print msgCountCombinD 
 	logging.info(msgCountCombinD)
@@ -381,14 +440,19 @@ def count_combin_nbr(REP_IN):
 	
 	#liste des combinaisons
 	combinations = []
-	for combination in itertools.combinations(filesIN, 2):
+	listCombinFormate=[]
+
+	for combination in itertools.combinations(filesIN, nbrComb):
 		combinations.append("___".join(str(i) for i in combination))
-		
+
+	for combin in combinations:
+		 listCombinFormate.append(combin.replace("_snpeff_snpsift_OneLineEff_DF.txt",""))
+
 	msgFileINCombinList = "--- LISTE DES COMBINAISONS POSSIBLES  ---"
 	print msgFileINCombinList
 	logging.info(msgFileINCombinList)
-	logging.info(str(combinations))
-	print str(combinations)
+	logging.info(str(listCombinFormate))
+	print str(listCombinFormate)
 	
 	msgFileINCombinCount = "--- COMPTAGE DES COMBINAISONS POSSIBLES  ---"
 	print msgFileINCombinCount
@@ -398,41 +462,7 @@ def count_combin_nbr(REP_IN):
 	msgCountCombinF = "FIN ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
 	print msgCountCombinF 
 	logging.info(msgCountCombinF)
-	return combinations
-
-#--- COUNT COMBIN WITH ARGUMENT 
-def count_combin_nbr_arg(listFichierEnArg):
-	filesIN = listFichierEnArg
-	msgCountCombinD = "DEBUT ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
-	print msgCountCombinD 
-	logging.info(msgCountCombinD)
-
-	msgFileIN= "--- LISTE DES FICHIERS D ENTREE ---"
-	print msgFileIN
-	logging.info(msgFileIN)
-	logging.info(str(filesIN))
-	#print str(filesIN)
-	
-	#liste des combinaisons
-	combinations = []
-	for combination in itertools.combinations(filesIN, 2):
-		combinations.append("___".join(str(i) for i in combination))
-		
-	msgFileINCombinList = "--- LISTE DES COMBINAISONS POSSIBLES  ---"
-	print msgFileINCombinList
-	logging.info(msgFileINCombinList)
-	logging.info(str(combinations))
-	print str(combinations)
-	
-	msgFileINCombinCount = "--- COMPTAGE DES COMBINAISONS POSSIBLES  ---"
-	print msgFileINCombinCount
-	logging.info(msgFileINCombinCount)
-	logging.info(str(len(combinations)))
-	print str(len(combinations))
-	msgCountCombinF = "FIN ___ ETAPES DE COMPTAGE DU NOMBRE DE COMBINAISONS"
-	print msgCountCombinF 
-	logging.info(msgCountCombinF)
-	return combinations
+	return listCombinFormate
 	
 #__ RECUPERATION DES LIGNES DE FICHIER DANS UNE LISTE
 def readlines_fileIN(FileIn):
@@ -473,97 +503,50 @@ def list_all_files(REPORT_DIR_NAME):
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- TRAITEMENT -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-- DEBUT
 #__TRAITEMENT DE CHAQUE COMBINAISON DE FICHIER
-def trait_one_combination_file(fileCombinList,REP_IN,REPORT_DIR_NAME):
-	print "FILES TO TREAT : " + str(fileCombinList)
-	logging.info("FILES TO TREAT : " + str(fileCombinList))
-	fileIN1 = readlines_fileIN(REP_IN+"/"+fileCombinList[0]+".txt")
-	fileIN2 = readlines_fileIN(REP_IN+"/"+fileCombinList[1]+".txt")
+def trait_one_combination_file(combin,REP_IN,REPORT_DIR_NAME):
+	listFileInCombin=[]
+	listFileInCombinSorted=[]
+	listFilesC=combin.split("___")
+	for fileC in listFilesC:
+		#pathfileC = REP_IN.strip("/")+"/"+fileC+"_snpeff_snpsift_OneLineEff_DF.txt"
+		pathfileC = fileC+"_snpeff_snpsift_OneLineEff_DF.txt"
+		listFileInCombin.append(pathfileC)
+	listFileInCombinSorted=sorted(set(listFileInCombin))
+	print "FILES TO TREAT FOR : " + combin + "\n"+ str(listFileInCombinSorted)
+	logging.info("FILES TO TREAT FOR : " + combin + "\n"+ str(listFileInCombinSorted))
 
-	#__ REPERTOIRE DE LA COMBINAISON
-	repCombin =  fileCombinList[0] + "___" + fileCombinList[1]
-	
-	#__ RECUPERATION DES COMMUNS ENTRE LES DEUX FICHIERS
-	list_comm = sorted(list( set(fileIN1) & set(fileIN2)))
-
-	#__ EDITER LE FICHIER DES COMMUNS DE LA COMBINAISON
-	fileOUt = REPORT_DIR_NAME + "/" + repCombin + "/" + repCombin + "_comm.txt"
-	print "PATH COMMUN FILE : "  + fileOUt
-	logging.info("PATH COMMUN FILE : "  + fileOUt)
-	write_line_inFile_fromList(list_comm,fileOUt)
-
-	#__ RECUPERATION DES UNIQ POUR LE PREMIER FICHIER
-	list_uniq1 = sorted(list(set(fileIN1) - set(fileIN2)))
-
-	#__ EDITER LE FICHIER DES UNIQUE DU PREMIER FICHIER  DE LA COMBINAISON
-	fileOUt1 = REPORT_DIR_NAME + "/" + repCombin + "/" + fileCombinList[0]+ "_uniq.txt"
-	print "PATH uniq FILE : "  + fileOUt1
-	logging.info( "PATH uniq FILE : "  + fileOUt1)
-	write_line_inFile_fromList(list_uniq1,fileOUt1)
-
-	#__ RECUPERATION DES UNIQ POUR LE DEUXIEME FICHIER
-	list_uniq2 = sorted(list(set(fileIN2) - set(fileIN1)))
-
-	#__ EDITER LE FICHIER DES UNIQUE DU PREMIER FICHIER  DE LA COMBINAISON
-	fileOUt2 = REPORT_DIR_NAME + "/" + repCombin + "/" + fileCombinList[1]+ "_uniq.txt"
-	print "PATH uniq FILE : "  + fileOUt2
-	logging.info("PATH uniq FILE : "  + fileOUt2)
-	write_line_inFile_fromList(list_uniq2,fileOUt2)
-
+	return listFileInCombinSorted
 #___ RECUP DATA FROM COMBINATED FILES  ------------------------------------------------------------------------
-def data_combinFile_recup(REP_IN,REPORT_DIR_NAME):
+def data_combinFile_recup(REP_IN,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn,nbrComb,DATA_MATRICE_VENN):
 	#__COMPTAGE DU NOMBRE DE COMBINAISON ***
-	listeFileCombinations = count_combin_nbr(REP_IN)
-	#print listeFileCombinations
-	#firstComb = listeFileCombinations[1]
-			
-	for combination in listeFileCombinations:
-		print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON ___________________________________________"
-		logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON ___________________________________________")
+	listeFileCombinations = count_combin_nbr(listFilesIn,nbrComb)
+	
+	for combinI in listeFileCombinations :
+		print "DEBUT ____________________ TRAITEMENT DE LA COMBINAISON "+combinI+"___________________________________________"
+		logging.info("DEBUT _____________ TRAITEMENT DE LA COMBINAISON  "+combinI+"_________________________________")
 
-		#__CREATION REP OUT
-		nameCombinRep=combination.replace(".txt","")
-		pathCombin=REPORT_DIR_NAME.rstrip("/")+"/"+nameCombinRep
+		print "\tCREATION DU REPERTOIRE DE SORTIE DE LA COMBINAISON"
+		logging.info("\tCREATION DU REPERTOIRE DE SORTIE DE LA COMBINAISON")
+
+		pathCombin = REP_OUT.strip("/") + "/"+combinI
 		if str(os.path.isdir(pathCombin)) == "False" :
 			os.mkdir(pathCombin)
+		print "\tLE PATH A ETE CREE : " + pathCombin
+		logging.info("\tLE PATH A ETE CREE : " + pathCombin)
+
+		print "\tTRAITEMENT DES FICHIERS DE LA COMBINAISON"
+		logging.info("\tTRAITEMENT DES FICHIERS DE LA COMBINAISON")
+		#list fichier a traiter pour chaque combine
+		listFilesINC = trait_one_combination_file(combinI,REP_IN,REP_OUT)
+		#traitement de la liste des fichiers
+		combin_all_file(REP_IN,REP_OUT,pathCombin,DATA_TABLE_FILE_NAME,listFilesINC,DATA_MATRICE_VENN)
 		
-		print "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin
-		logging.info( "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin)
 
-		#__TRAITEMENT DE COMBINAISON
-		#LISTE des deux fichies de la combinaison
-		fileCombinList = combination.replace(".txt","").split("___")
-		trait_one_combination_file(fileCombinList,REP_IN,REPORT_DIR_NAME)
-		print "FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________"
-		logging.info("FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________")
+		print "FIN ____________________ TRAITEMENT DE LA COMBINAISON "+combinI+"___________________________________________"
+		logging.info("FIN _____________ TRAITEMENT DE LA COMBINAISON  "+combinI+"_________________________________")
 
 
-#___ RECUP DATA FROM COMBINATED FILES  WITH ARG ----------------------------------------------------------------------
-def data_combinFile_recupn_nbr_arg(REP_IN,REPORT_DIR_NAME,listFichierEnArg):
-	#__COMPTAGE DU NOMBRE DE COMBINAISON ***
-	listeFileCombinations =count_combin_nbr_arg(listFichierEnArg)
-	#print listeFileCombinations
-	#firstComb = listeFileCombinations[1]
-			
-	for combination in listeFileCombinations:
-		print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON ___________________________________________"
-		logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON ___________________________________________")
 
-		#__CREATION REP OUT
-		nameCombinRep=combination.replace(".txt","")
-		pathCombin=REPORT_DIR_NAME.rstrip("/")+"/"+nameCombinRep
-		if str(os.path.isdir(pathCombin)) == "False" :
-			os.mkdir(pathCombin)
-		
-		print "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin
-		logging.info( "CREATION DES REPERTOIRES CORRESPONDANT AUX COMBINAISONS : " + pathCombin)
-
-		#__TRAITEMENT DE COMBINAISON
-		#LISTE des deux fichies de la combinaison
-		fileCombinList = combination.replace(".txt","").split("___")
-		trait_one_combination_file(fileCombinList,REP_IN,REPORT_DIR_NAME)
-		print "FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________"
-		logging.info("FIN _________________________ FIN DE TRAITEMENT DE LA COMBINAISON ___________________________________________")
-		
 
 #RECUPERATION LISTE ID DANS CHAQUE FICHIER 
 def create_list_from_cln_all_file(fileName,numCln):
@@ -670,15 +653,19 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 	#Creation matrice 
 	#ajout IDS dans le fichier contenant tous les ids :
 	fileAllID = open (REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME,"w")
-	fileAllID.write("Ids\t\n")
+	fileAllID.write("IDS_ALL_SANS_DOUBLONS\n")
 	for idsT in listID_sansdb:
 		fileAllID.write(idsT + "\n")
 	fileAllID.close()
-	
+
 	print "\t___DEBUT CREATION MATRICE POUR LE DIAGRAMME DE VENN "
 	logging.info("\t___DEBUT CREATION MATRICE POUR LE DIAGRAMME DE VENN ")
-	cmd= "paste " + REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME + " " + recupFileNameHeader +" > "+ REPORT_DIR_NAME + "/"+"data_Table_For_Venn.txt"	
+	cmd= "paste " + REPORT_DIR_NAME + "/" +DATA_TABLE_FILE_NAME + " " + recupFileNameHeader +" > "+ REP_OUT + "/"+"data_Table_For_Venn.txt"	
 	os.system(cmd)
+
+	cmd2= "paste " + recupFileNameHeader +" > "+ REP_OUT + "/"+"matrix.txt"	
+	os.system(cmd2)
+
 	print "\t___FIN CREATION MATRICE POUR LE DIAGRAMME DE VENN "
 	logging.info("\t___FIN CREATION MATRICE POUR LE DIAGRAMME DE VENN ")
 	
@@ -687,17 +674,15 @@ def dataTableFile_creat(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,list
 		os.system("rm " + REPORT_DIR_NAME+"/"+"dataTableVenn_"+namefile.strip("_snpeff_snpsift_OneLineEff_DF.txt")+".txt")
 	print "FIN DE LA LECTURE DU FICHIER CONTENANT LES ID SANS DOUBLONS."
 	logging.info("FIN DE LA LECTURE DU FICHIER CONTENANT LES ID SANS DOUBLONS.")
-	
+
 	
 #COMBI DE TOUS LES FICHIERS 
 def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFilesIn,DATA_MATRICE_VENN):
 
-	print "DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________"
-	logging.info("DEBUT _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ______________________________")
-
 	#__CREATION DU FICHIER DATA_TABLE POUR R
 	#Lister les fichiers du repertoire d entree
 	listFileInRep = listFilesIn
+
 	print "\tFILES TO TREAT : " + str(listFileInRep)
 	logging.info("FILES TO TREAT : " + str(listFileInRep))
 	
@@ -714,13 +699,14 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	print "\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
 	logging.info("\t__DEBUT LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS ")
 	#ouvrir le fichier contenant les IDs communs :
-	commFile= open (REPORT_DIR_NAME+"/Id_comm.txt","w")
+	commFile= open (REP_OUT+"/Id_comm.txt","w")
 	commFile.write("IDS_COMMUNS\n")
-	#ouvrir le fichier contenant les IDs communs :
-	uniqFileIds= open (REPORT_DIR_NAME+"/Id_uniq.txt","w")
+
+	#ouvrir le fichier contenant les IDs uniqs :
+	uniqFileIds= open (REP_OUT+"/Id_uniq.txt","w")
 	uniqFileIds.write("IDS_UNIQS\n")
 	#lecture de la matrice 
-	matriceIn = open(REPORT_DIR_NAME+"/"+DATA_MATRICE_VENN,"r")
+	matriceIn = open(REP_OUT+"/"+DATA_MATRICE_VENN,"r")
 	lines = matriceIn.readlines()
 	
 	listUniqID=[]
@@ -755,8 +741,8 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	logging.info("\tNOMBRE D'IDS TRAITES : " + str(idTraitNbr))		
 	print "\tNOMBRE D'IDS COMMUNS A TOUS LES FICHIERS : " + str(commNbr)
 	logging.info("\tNOMBRE D'IDS COMMUNS A TOUS LES FICHIERS : " + str(commNbr))	
-	print "\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS : " + str(comm2AtLeast)
-	logging.info("\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS : " + str(comm2AtLeast))
+	print "\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS (Si nbrFichier > 2, sinon =0): " + str(comm2AtLeast)
+	logging.info("\tNOMBRE D'IDS COMMUNS A AUX MOINS DEUX FICHIERS (Si nbrFichier > 2, sinon =0): " + str(comm2AtLeast))
 	print "\tNOMBRE D'ID UNIQUE A UN SEUL FICHIER : " + str(uniqNbr)
 	logging.info("\tNOMBRE D'ID UNIQUE A UN SEUL FICHIER : " + str(uniqNbr))
 	
@@ -764,7 +750,7 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	matriceIn.close()
 	commFile.close()
 	uniqFileIds.close()
-	
+
 	print "\t__FIN LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS "
 	logging.info("\t__FIN LECTURE DE LA MATRICE ET GENERATION DU FICHIER DES IDS COMMUNS / UNIQS ")
 	
@@ -794,13 +780,35 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 					foutList.write(linef+"\n")
 					nbrUniqIdInFile.append(lineListField[4])
 		print "\tNOMBRE D ID UNIQUE DANS LE FICHIER : " + namefile.strip(".txt") + "_UNIQ.txt est " + str(len(sorted(set(nbrUniqIdInFile))))
+		logging.info("\tNOMBRE D ID UNIQUE DANS LE FICHIER : " + namefile.strip(".txt") + "_UNIQ.txt est " + str(len(sorted(set(nbrUniqIdInFile)))))
 		finList.close()
 		foutList.close()
 		nbrUniqIdInFile = []
 	print "FIN ___ GENERATION DES FICHIERS DES UNIQUES PAR FICHIERS "
-	print "FIN _________________________ TRAITEMENT DE LA COMBINAISON DE L ENSEMBLE DES FICHIERS ___________________________________________"
-	logging.info("FIN _________________________ TRAITEMENT DE DE L ENSEMBLE DES FICHIERS ___________________________________________")
-	
+	logging.info("FIN ___ GENERATION DES FICHIERS DES UNIQUES PAR FICHIERS ")
+
+	print "DEBUT ___ GENERATION DU  FICHIER DES COMMUNS A TOUS LES FICHIERS "
+	logging.info("DEBUT ___ GENERATION DU  FICHIER DES COMMUNS A TOUS LES FICHIERS ")
+
+	#ouvrir le fichier contenant les lignes correspondant aux ids communs
+	pathout0=REP_OUT.strip("/") + "/"+"/CommAllFiles.txt"
+	commFilewithL= open (pathout0,"w")
+	commFilewithL.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
+
+	#Fichier d entree
+	pathFileName0 = REP_IN.strip("/")+"/"+listFileInRep[0]
+	finList0 = open(pathFileName0,"r")
+	linesFin0 = finList0.readlines()
+	for linef in linesFin0 :
+		if linef != linesFin0[0] :
+			linef = linef.strip("\r\n")
+			lineListField = linef.split("\t")
+			if lineListField[4] in listCommID:
+				commFilewithL.write(linef+"\n")
+	commFilewithL.close()
+	finList0.close()
+	print "FIN ___ GENERATION DU  FICHIER DES COMMUNS A TOUS LES FICHIERS "
+	logging.info("FIN ___ GENERATION DU  FICHIER DES COMMUNS A TOUS LES FICHIERS ")
 	
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@------- TRAITEMENT -------@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#-- FIN
 
@@ -809,16 +817,17 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 def main(argv):
 	#__LogFile
 	LOG_FILE_NAME = "./LogFile.log"
-	DATA_TABLE_FILE_NAME = "./data_Table_Venn.txt"
-	DATA_MATRICE_VENN ="./data_Table_For_Venn.txt"
 	log_report(LOG_FILE_NAME)
+
+	DATA_TABLE_FILE_NAME = "Id_all.txt"
+	DATA_MATRICE_VENN ="data_Table_For_Venn.txt"
+
 	#___ TEST DE VERIFICATION DU NOMBRE DES ARGUMENTS  ET TRAITEMENT CORRESPONDANT----
 	verif_lastArg(argv,LOG_FILE_NAME,DATA_TABLE_FILE_NAME,DATA_MATRICE_VENN)
-	
-	#Nettoyage des fichiers intermédiaires
-	#for namefile in listFileInRep:
-	#	os.system ("rm " + REPORT_DIR_NAME + "/dataTableVenn_*")
+
+
 if __name__ == "__main__":
 	main(sys.argv[1:])
+
 
 
