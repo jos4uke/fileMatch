@@ -5,10 +5,10 @@
 
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
-__version__ = "1.1"		                      	   	      #/
-__date__= "20130808"		                      		      #/
+__version__ = "2.0"		                      	   	                  #/
+__date__= "20131709"		                      		              #/
 __copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
-__license__ = "GROUPE DEV IJPB"			                      #/
+__license__ = "GROUPE DEV IJPB"			                              #/
 #///////////////////////////////////////////////////////////////////////
 
 
@@ -569,11 +569,15 @@ def create_list_from_cln_all_file(fileName,numCln):
 
 #RECUPERATION LISTE ID DANS CHAQUE FICHIER 
 def create_id_list_cln_wO_msg(fileName,numCln):
+	global HEADER_DREAM_FILE
+	
 	lenClnX=0
 	listClnX=[]
 	
 	fin= open(fileName,"r")
 	lines = fin.readlines()
+	
+	HEADER_DREAM_FILE = lines[0]
 	
 	for line in lines:
 		 if line != lines[0] :		# SUPPRESSION DES ENTETES DES CLN
@@ -770,7 +774,11 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 		#Fichier de sortie
 		pathFileOUt= REP_OUT.strip("/") + "/"+namefile.strip(".txt") + "_UNIQ.txt"
 		foutList = open(pathFileOUt,"w")
-		foutList.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
+		
+		#---AUTOMATISATION DES ENTETES
+		#foutList.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
+		foutList.write(HEADER_DREAM_FILE)
+		
 		for linef in linesFin :
 			if linef != linesFin[0] :
 				linef = linef.strip("\r\n")
@@ -779,6 +787,7 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 				if lineListField[4] in listUniqID:
 					foutList.write(linef+"\n")
 					nbrUniqIdInFile.append(lineListField[4])
+					
 		print "\tNOMBRE D ID UNIQUE DANS LE FICHIER : " + namefile.strip(".txt") + "_UNIQ.txt est " + str(len(sorted(set(nbrUniqIdInFile))))
 		logging.info("\tNOMBRE D ID UNIQUE DANS LE FICHIER : " + namefile.strip(".txt") + "_UNIQ.txt est " + str(len(sorted(set(nbrUniqIdInFile)))))
 		finList.close()
@@ -793,8 +802,12 @@ def combin_all_file(REP_IN,REPORT_DIR_NAME,REP_OUT,DATA_TABLE_FILE_NAME,listFile
 	#ouvrir le fichier contenant les lignes correspondant aux ids communs
 	pathout0=REP_OUT.strip("/") + "/"+"/CommAllFiles.txt"
 	commFilewithL= open (pathout0,"w")
-	commFilewithL.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
-
+	
+	
+	#---AUTOMATISATION DES ENTETES
+	#commFilewithL.write("CHROMOSOME\tPOSITION\tREFERENCE\tCHANGE\tCUSTOM_SNP\tCUSTOM_VARIATION\tCHANGE_TYPE\tDP4_REF_FWD\tDP4_REF_REV\tDP4_ALT_FWD\tDP4_ALT_REV\tDP4_TOTAL_REF\tDP4_TOTAL_ALT\tCOVERAGE\tHOM_HET\tQUALITY\tID_GENE\tEFFECT\tNBR_BASE\tOLD_AA/NEW_AA\tOLD_CODON/NEW_CODON\tCODON_NUM(CDS)\tCODON_DEGENERACY\n")
+	commFilewithL.write(HEADER_DREAM_FILE)
+	
 	#Fichier d entree
 	pathFileName0 = REP_IN.strip("/")+"/"+listFileInRep[0]
 	finList0 = open(pathFileName0,"r")
