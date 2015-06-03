@@ -6,9 +6,10 @@
 #///////////////////////////////////////////////////////////////////////
 __author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)"#/
 __version__ = "2.0"		                      	   	                  #/
+__maintainer__ = "Joseph Tran(Joseph.Tran@versailles.inra.fr)"        #/
 __date__= "20131709"		                      		              #/
-__copyright__ = "Copyright (c) 2013-2014 BHN"                         #/
-__license__ = "GROUPE DEV IJPB"			                              #/
+__copyright__ = "Copyright (c) 2013-2014 BHN & Joseph Tran"           #/
+__license__ = "GPL v3"			                              #/
 #///////////////////////////////////////////////////////////////////////
 
 

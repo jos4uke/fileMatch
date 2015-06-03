@@ -1,8 +1,9 @@
 #__author__ = "BEN HASSINE Najla(Najla.Ben-Hassine@versailles.inra.fr)" #/
+#__maintainer__ = "Joseph Tran(Joseph.Tran@versailles.inra.fr)" #/
 #__version__ = "1.1"							#/
 #__date__ = "AOUT 2013"							#/
-#__copyright__ = "Copyright (c) 2013-2014 BHN"                         	#/
-#__license__ = "GROUPE DEV IJPB"			                #/
+#__copyright__ = "Copyright (c) 2013-2014 BHN & Joseph Tran"            #/
+#__license__ = "GPL v3"			                                #/
 #/////////////////////////////////////////////////////////////////////////
 
 """
